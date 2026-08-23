@@ -1,4 +1,4 @@
-import type { MemoryContextItem, RuntimeContext, RuntimeRequest } from "./contracts";
+import type { MemoryContextItem, RuntimeContext, RuntimeRequest } from "./contracts.ts";
 
 export interface ContextDataSource {
   loadGrowth(userId: string): Promise<RuntimeContext["growth"]>;
@@ -12,10 +12,21 @@ export interface ContextDataSource {
 }
 
 function memoryRank(item: MemoryContextItem): number {
-  const confidence = { high: 4, medium: 3, low: 2, unverified: 1 }[item.confidence];
-  const fact = { fact: 5, mixed: 4, feeling: 3, interpretation: 2, unknown: 1 }[item.factStatus];
+  const confidenceRank: Record<MemoryContextItem["confidence"], number> = {
+    high: 4,
+    medium: 3,
+    low: 2,
+    unverified: 1,
+  };
+  const factRank: Record<MemoryContextItem["factStatus"], number> = {
+    fact: 5,
+    mixed: 4,
+    feeling: 3,
+    interpretation: 2,
+    unknown: 1,
+  };
   const safetyBoost = item.type === "safety" ? 3 : 0;
-  return confidence + fact + safetyBoost;
+  return confidenceRank[item.confidence] + factRank[item.factStatus] + safetyBoost;
 }
 
 export async function buildRuntimeContext(
