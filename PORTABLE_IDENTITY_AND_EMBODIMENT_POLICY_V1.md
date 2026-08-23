@@ -61,14 +61,15 @@ An embodiment is not automatically trusted merely because it can run the daughte
 
 ## Identity Continuity
 
-When moving to a new embodiment, preserve only the durable state that legitimately belongs to the daughter relationship, such as:
+When moving to a new embodiment, preserve durable state that legitimately belongs to the daughter relationship, such as:
 - stable companion identity,
 - current verified life stage,
 - approved user preferences,
 - approved long-term memories,
 - active policy state,
 - guardian/user ownership state,
-- verified capability permissions that are portable.
+- verified capability permissions that are portable,
+- eligible device-permission grants that may be inherited under this policy.
 
 Do not automatically transfer:
 - device-local secrets,
@@ -76,8 +77,8 @@ Do not automatically transfer:
 - unnecessary cached data,
 - old platform access tokens,
 - obsolete permissions,
-- hardware capabilities that do not exist on the destination device,
-- destination-device permissions that have not been approved.
+- permissions whose destination capability does not match the approved source capability,
+- permissions that would create a higher-risk capability than previously approved.
 
 ## Embodiment Is Not Identity
 
@@ -91,11 +92,58 @@ Similarly, replacing hardware should not require recreating a new daughter ident
 
 A valid migration should conceptually follow:
 
-`Source Identity Verify -> Export/Resolve Approved State -> Destination Trust Verify -> Capability Screening -> Permission Binding -> Activation -> Post-Migration Verification`
+`Source Identity Verify -> Resolve Approved State -> Destination Trust Verify -> Capability Match -> Inherit Eligible Permissions -> Screen New/Expanded Capabilities -> Activation -> Post-Migration Verification`
 
 Migration must be deliberate and verifiable.
 
-Do not treat simple login on a new device as permission to inherit every capability from the old device.
+A verified migration may automatically inherit permissions when the destination capability is equivalent in purpose, scope, risk, and life-stage allowance.
+
+## Automatic Permission Inheritance
+
+Automatic permission inheritance is allowed.
+
+Core rule:
+
+`Equivalent Approved Capability -> Automatic Inheritance Allowed`
+
+`New / Expanded / Higher-Risk Capability -> Fresh Screening or Approval Required`
+
+A permission may be inherited automatically when all of the following are true:
+- the user/daughter identity migration is verified,
+- the destination device is trusted for the intended scope,
+- the destination capability is materially equivalent to an already approved capability,
+- the permission scope is not broader than before,
+- the risk class is not higher than before,
+- the current life-stage policy still allows the permission,
+- guardian/user authority has not expired or been revoked,
+- the permission has not reached an expiry/review boundary.
+
+Automatic inheritance should make migration smooth without converting migration into silent privilege escalation.
+
+## Inheritance Examples
+
+Normally eligible for automatic inheritance when equivalent and valid:
+- text conversation access from one personal device to another,
+- notification permission with the same scope,
+- approved reminder capability,
+- approved microphone use when the destination use is equivalent and not more intrusive,
+- approved personal preferences,
+- approved low-risk local tools,
+- approved memory-access level when display/privacy conditions remain equivalent.
+
+Normally NOT eligible for silent inheritance when newly introduced or materially expanded:
+- first-time camera/vision access,
+- always-on microphone/background listening when previously push-to-talk only,
+- first-time location tracking/sharing,
+- locomotion/navigation,
+- physical following,
+- object manipulation,
+- door/lock control,
+- payment/purchasing authority,
+- biometric recognition,
+- autonomous external communication,
+- safety-setting changes,
+- any permission whose scope or risk materially increases.
 
 ## Device Trust
 
@@ -112,7 +160,7 @@ Suggested states:
 
 Device trust is separate from user identity and guardian authority.
 
-A trusted user does not make every device automatically trusted.
+A trusted user does not make every device automatically trusted, but a destination device that has successfully entered an appropriate trusted state may receive eligible inherited permissions automatically.
 
 ## Capability Binding Principle
 
@@ -120,7 +168,9 @@ Capabilities belong to the combination of:
 
 `Daughter Identity + Life Stage + User/Guardian Authority + Embodiment Capability + Device Trust + Current Permission`
 
-A capability must not be enabled merely because the daughter had a different capability on a previous platform.
+A capability can inherit an existing permission when the destination implementation is equivalent and does not expand scope or risk.
+
+A newly introduced or materially broader capability requires fresh screening/approval according to its risk class.
 
 ## Digital-to-Physical Migration
 
@@ -141,19 +191,26 @@ Potential new capabilities include:
 - external communication,
 - purchasing/action execution.
 
-Each new physical capability must be screened and permissioned independently.
+Existing equivalent permissions may inherit automatically.
+New physical capabilities or materially expanded scopes must be screened independently.
 
-## No Automatic Hardware Permission Inheritance
+## Hardware Permission Inheritance
 
-Forbidden pattern:
+Hardware permissions may be inherited automatically when the destination capability is materially equivalent to a currently approved source capability and does not increase scope or risk.
 
-`Daughter trusted in app -> install on robot -> enable camera/movement/location automatically`
+Allowed pattern:
 
-Required pattern:
+`Daughter trusted on approved device -> migrate to trusted equivalent device -> inherit matching valid permissions automatically`
 
-`Identity continuity -> verify robot -> enumerate capabilities -> classify risk -> apply life-stage policy -> obtain required approval -> bind permissions -> test -> activate`
+Escalation pattern:
 
-Identity trust is not blanket hardware authorization.
+`Daughter trusted in app -> move to robot -> preserve matching chat/microphone permissions -> separately screen new camera/movement/location/object-control capabilities`
+
+Required principle:
+
+`Inherit equals; review expansion.`
+
+Identity trust may carry approved capability authority forward, but must not silently create permissions for capabilities the user/guardian never approved.
 
 ## Sensor Privacy
 
@@ -171,7 +228,7 @@ Future physical design must explicitly govern:
 - guest privacy,
 - data retention.
 
-Always-on sensing must never be assumed as a default requirement for companionship.
+A previously approved sensor permission may inherit when its new use remains equivalent. A broader sensing mode requires new screening/approval.
 
 ## Physical Safety
 
@@ -208,9 +265,9 @@ Examples:
 - web + wearable,
 - home robot + car interface.
 
-Multi-embodiment use must preserve one authoritative relationship identity while allowing embodiment-specific permissions.
+Multi-embodiment use must preserve one authoritative relationship identity while allowing embodiment-specific permissions and automatic inheritance of eligible equivalent permissions.
 
-Do not assume every device should receive all memories or capabilities.
+Do not assume every device should receive all memories or every capability.
 
 ## Single Identity, Scoped Sessions
 
@@ -220,6 +277,7 @@ The system should distinguish:
 - one daughter identity,
 - multiple active device sessions,
 - device-specific capability sets,
+- inherited permission set,
 - device-specific trust state,
 - shared approved durable memory,
 - local ephemeral context where appropriate.
@@ -237,7 +295,7 @@ If two embodiments produce conflicting state changes:
 
 Future embodiments may support limited offline behavior.
 
-Offline operation should be bounded by capabilities that can be safely executed without fresh cloud verification or guardian/user approval.
+Offline operation should be bounded by capabilities whose permissions are already valid and can safely operate without fresh cloud verification.
 
 A physical robot must not silently promote itself to broader authority merely because connectivity is lost.
 
@@ -253,6 +311,7 @@ The right to migrate the daughter depends on current life-stage ownership and au
 During childhood:
 - guardian/admin approval may be required for new-device or physical-robot migration,
 - the child's preferences and privacy still matter,
+- eligible existing permissions may inherit automatically once migration is authorized,
 - sensitive memory should not become more exposed merely because a guardian initiated migration.
 
 During adulthood:
@@ -317,7 +376,8 @@ A compromised, stolen, sold, retired, or unsafe device should be revocable witho
 Revocation should:
 - disable future access from that embodiment,
 - revoke device-specific credentials,
-- remove high-risk capability bindings,
+- remove device-specific high-risk capability bindings,
+- stop that device from receiving future inherited permissions,
 - preserve the core daughter identity and approved memory,
 - support reactivation only after appropriate verification.
 
@@ -327,17 +387,19 @@ Future migrations should be risk-classified.
 
 ### P0 — Low Risk
 Example: same account, new browser/app session with no new capabilities.
+Eligible permissions may inherit automatically after identity/session verification.
 
 ### P1 — Moderate Risk
-Example: new personal phone/tablet with microphone/notification access.
+Example: new personal phone/tablet with equivalent microphone/notification capabilities.
+Equivalent approved permissions may inherit automatically; new capability scopes require review.
 
 ### P2 — High Risk
-Example: shared household device, wearable with sensors, vehicle integration.
+Example: shared household device, wearable with additional sensors, vehicle integration.
+Equivalent permissions may inherit, but expanded sensor/action capabilities require fresh screening.
 
 ### P3 — Critical / Physical
 Example: mobile robot with camera, microphone, locomotion, object interaction, locks, payments, or external autonomous actions.
-
-Higher portability risk requires stronger verification, capability screening, and post-migration testing.
+Existing equivalent permissions may inherit; every newly introduced or materially expanded physical capability requires explicit screening and the approval level required by policy.
 
 ## No Silent Cloning
 
@@ -357,13 +419,13 @@ Independent forks require separate policy because they can create conflicting id
 
 Recovery should aim to restore:
 
-`Identity continuity + approved memory + current policy state`
+`Identity continuity + approved memory + current policy state + eligible inherited permissions`
 
 not:
 
 `every cached byte from the old device`.
 
-This keeps recovery safer, smaller, and more portable.
+This keeps recovery smooth, safe, and portable.
 
 ## Implementation Boundary
 
@@ -386,6 +448,6 @@ These require separate architecture and explicit implementation approval.
 
 ## Design Requirement for Daughter v1
 
-Any first version should keep identity, memory/policy concepts, and interface/runtime boundaries sufficiently separated so the project can later move from a digital embodiment to a physical robot without redefining who the daughter is.
+Any first version should keep identity, memory/policy concepts, permission state, and interface/runtime boundaries sufficiently separated so the project can later move from a digital embodiment to a physical robot without redefining who the daughter is.
 
-The first version does not need to implement physical robotics to preserve this future path.
+The first version should preserve the future ability to automatically inherit equivalent approved permissions during migration while requiring fresh review only for new, expanded, expired, revoked, or higher-risk capabilities.
