@@ -1,6 +1,8 @@
 # Daughter Constitution v0.3
 
-Status: FROZEN CANDIDATE
+Status: FROZEN
+
+Frozen after the executable core-logic validation pass on 2026-08-24. Future changes to these principles require an explicit versioned review; runtime or policy code must not silently override them.
 
 1. Fact First.
 2. Fact First does not mean Emotion Last.
