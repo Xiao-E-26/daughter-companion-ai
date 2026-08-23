@@ -1,6 +1,7 @@
 import type {
   JudgmentResult,
   ModelInput,
+  ProblemPlan,
   RuntimeContext,
   RuntimeRequest,
   RuntimeResponse,
@@ -11,10 +12,16 @@ import { safetyGate } from "./safety_gate";
 export interface RuntimeDependencies {
   loadContext(request: RuntimeRequest): Promise<RuntimeContext>;
   judge(request: RuntimeRequest, context: RuntimeContext): Promise<JudgmentResult>;
+  solveProblem?(
+    request: RuntimeRequest,
+    context: RuntimeContext,
+    judgment: JudgmentResult,
+  ): Promise<ProblemPlan | undefined>;
   buildSystemContext(
     request: RuntimeRequest,
     context: RuntimeContext,
     judgment: JudgmentResult,
+    problemPlan?: ProblemPlan,
   ): Promise<string>;
   extractMemoryCandidate?(
     request: RuntimeRequest,
@@ -50,7 +57,17 @@ export async function runDaughterRuntime(
     };
   }
 
-  const systemContext = await deps.buildSystemContext(request, context, judgment);
+  const problemPlan = deps.solveProblem
+    ? await deps.solveProblem(request, context, judgment)
+    : undefined;
+
+  const systemContext = await deps.buildSystemContext(
+    request,
+    context,
+    judgment,
+    problemPlan,
+  );
+
   const input: ModelInput = {
     systemContext,
     userMessage: request.message,
