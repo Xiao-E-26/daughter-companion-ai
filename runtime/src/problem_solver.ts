@@ -1,4 +1,4 @@
-import type { ProblemPlan, RuntimeContext, RuntimeRequest } from "./contracts";
+import type { ProblemPlan, RuntimeContext, RuntimeRequest } from "./contracts.ts";
 
 export interface ProblemSignals {
   problem: string;
