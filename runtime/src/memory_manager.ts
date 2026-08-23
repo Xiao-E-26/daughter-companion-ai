@@ -1,8 +1,12 @@
-import type { MemoryContextItem, RuntimeRequest, RuntimeResponse } from "./contracts";
+import type { MemoryContextItem, RuntimeRequest } from "./contracts.ts";
 
 export type MemoryStatus = "active" | "historical" | "disputed" | "archived" | "deleted";
 
-export interface MemoryWriteCandidate extends NonNullable<RuntimeResponse["memoryCandidate"]> {
+export interface MemoryWriteCandidate {
+  type: MemoryContextItem["type"];
+  content: string;
+  factStatus: MemoryContextItem["factStatus"];
+  confidence: MemoryContextItem["confidence"];
   sensitivity?: "normal" | "sensitive" | "high";
   importance?: "low" | "normal" | "high";
   expiresAt?: string;
@@ -28,7 +32,7 @@ function containsPermanentNegativeLabel(content: string): boolean {
 }
 
 export function decideMemoryWrite(
-  request: RuntimeRequest,
+  _request: RuntimeRequest,
   candidate: MemoryWriteCandidate | undefined,
   existing: MemoryContextItem[],
 ): MemoryDecision {
