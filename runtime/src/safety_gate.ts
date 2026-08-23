@@ -1,4 +1,4 @@
-import type { JudgmentResult, SafetyDecision } from "./contracts";
+import type { JudgmentResult, SafetyDecision } from "./contracts.ts";
 
 export function safetyGate(judgment: JudgmentResult): SafetyDecision {
   if (judgment.risk >= 3) {
