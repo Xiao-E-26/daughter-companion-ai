@@ -1,5 +1,5 @@
-import { chooseDepth } from "./depth_router";
-import type { JudgmentResult, RuntimeContext, RuntimeRequest } from "./contracts";
+import { chooseDepth } from "./depth_router.ts";
+import type { JudgmentResult, RuntimeContext, RuntimeRequest } from "./contracts.ts";
 
 export interface JudgmentSignals {
   facts?: string[];
