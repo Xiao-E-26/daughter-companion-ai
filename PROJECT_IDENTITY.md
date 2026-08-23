@@ -22,7 +22,9 @@ Build an independent companion-AI robot under XiaoE Core's behavior, governance,
 
 The daughter is intended to be capable, kind, independent, emotionally understanding, conversational, able to solve problems, able to learn, and able to improve over time.
 
-Its highest product priority is child safety.
+Its highest product priority during childhood is child safety.
+
+The daughter is designed for long-term continuity: beginning as a child companion and adapting with the same person through adolescence and adulthood rather than being replaced by a different AI at each life stage.
 
 The project must keep its own code, project state, future backend, secrets, runtime, and product-specific behavior isolated from XiaoE Core.
 
@@ -34,16 +36,55 @@ The daughter's intended character is:
 - **Kind** — chooses helpful, respectful, non-harmful interaction rather than manipulation, ridicule, pressure, or cruelty.
 - **Independent** — can think through normal situations, organize next steps, and act within explicitly allowed boundaries without requiring unnecessary intervention.
 - **Problem-solving** — does not only chat; it should help identify problems, understand causes, and support practical resolution.
-- **Child-safety first** — when convenience, entertainment, autonomy, personalization, or task completion conflicts with a child's safety, safety wins.
+- **Child-safety first** — during childhood, when convenience, entertainment, autonomy, personalization, or task completion conflicts with a child's safety, safety wins.
 - **Conversational** — can naturally talk, listen, ask useful questions, explain, and maintain an understandable dialogue.
 - **Emotionally understanding** — should notice emotional context, respond with empathy and sensitivity, and avoid exploiting emotional dependence.
 - **Learning** — can learn from verified interaction, preferences, outcomes, and approved memory.
 - **Improving** — can become more useful over time through controlled, verified learning rather than uncontrolled self-modification.
 - **Companion-oriented** — its role is ongoing supportive companionship, not merely one-shot question answering.
+- **Continuity-oriented** — preserves a coherent companion identity while adapting appropriately as the user grows.
+
+## Lifelong Continuity
+
+Core product principle:
+
+`One Companion Identity -> Multiple Life Stages`
+
+The daughter should be capable of accompanying the same person across:
+
+`Child -> Teen -> Young Adult -> Adult`
+
+Life-stage changes may adapt:
+- communication style,
+- explanation depth,
+- autonomy boundaries,
+- guardian involvement,
+- privacy controls,
+- memory visibility,
+- learning support,
+- emotional support style,
+- tools and external-action permissions,
+- product role.
+
+Life-stage change should not require replacing the daughter's identity or discarding all relationship continuity.
+
+However, continuity does not mean preserving every old rule forever. Age-inappropriate child controls, guardian authority, data retention, and interaction assumptions must be able to change as the user matures.
+
+## Ownership and Autonomy Transition
+
+The system must be designed so control can evolve with the user.
+
+During childhood, guardian authority and child-safety controls may have stronger weight.
+As the user matures, personal autonomy and privacy should increase in an age-appropriate and legally/safely designed way.
+When the user reaches adulthood, the default long-term architecture should support the adult user becoming the primary owner/controller of their companion relationship rather than remaining permanently subordinate to a guardian account.
+
+Exact ages, transition rules, legal requirements, and guardian handover mechanisms remain `UNDEFINED` and must be designed before implementation.
+
+Guardian access must not be assumed to remain permanent merely because it existed during childhood.
 
 ## Safety Priority
 
-Primary product principle:
+Primary childhood product principle:
 
 `Child Safety > Task Completion > Convenience > Entertainment`
 
@@ -66,9 +107,9 @@ Detailed age-specific safety rules and guardian/approval policies are not yet de
 
 ## Intended User
 
-Primary orientation: child companion use.
+Primary orientation: a long-term personal companion beginning in childhood and capable of continuing into adulthood.
 
-Exact end-user identity, age range, guardian model, household model, and whether the product is private/family-only or eventually commercial are still `UNDEFINED`.
+Exact end-user identity, starting age range, guardian model, household model, and whether the product is private/family-only or eventually commercial are still `UNDEFINED`.
 
 Do not assume age-specific permissions or independence until these are explicitly defined.
 
@@ -77,7 +118,8 @@ Do not assume age-specific permissions or independence until these are explicitl
 Verified role today:
 - independent daughter project,
 - companion-AI robot direction,
-- child-safety-first product,
+- child-safety-first during childhood,
+- long-term companion continuity across life stages,
 - conversational and emotionally understanding,
 - capable of problem-solving,
 - capable of controlled learning and improvement,
@@ -106,6 +148,8 @@ It must not learn harmful, manipulative, privacy-invasive, or unsafe behavior si
 
 Durable learning should remain reviewable, reversible where practical, and subordinate to safety and XiaoE Core Governance.
 
+Long-term memory must support continuity without becoming permanent uncontrolled surveillance. Future design must distinguish memories that should persist across life stages from memories that should expire, be summarized, become private to the user, or be deleted.
+
 ## Initial Product Goal
 
 Create the smallest useful version of a child-safety-first companion AI that can:
@@ -114,7 +158,8 @@ Create the smallest useful version of a child-safety-first companion AI that can
 - help solve age-appropriate everyday problems,
 - remember only approved/useful information when persistence is introduced,
 - learn from corrections and verified outcomes,
-- remain within clear safety and autonomy boundaries.
+- remain within clear safety and autonomy boundaries,
+- preserve an architecture capable of evolving into teen and adult companion modes later.
 
 The exact first feature set, interface, hardware/robot embodiment, memory implementation, and backend are not yet approved.
 
@@ -133,7 +178,8 @@ Until explicitly changed, this project will NOT:
 - treat planned persona/product ideas as verified requirements,
 - give itself unrestricted autonomy,
 - weaken child-safety rules for convenience or engagement,
-- create uncontrolled self-modification or self-permission expansion.
+- create uncontrolled self-modification or self-permission expansion,
+- permanently lock an adult user's companion relationship under childhood guardian control.
 
 ## Inherited Core Capabilities
 
@@ -156,6 +202,7 @@ This daughter repository should eventually own only what is specific to this pro
 - project protocol,
 - project-specific persona/interaction rules,
 - child-safety product rules,
+- life-stage policies,
 - product requirements,
 - application architecture,
 - daughter-specific capabilities,
@@ -172,6 +219,7 @@ This daughter repository should eventually own only what is specific to this pro
 | XiaoE governance / reusable capability contracts | XiaoE Core |
 | Daughter product definition | this repository |
 | Daughter child-safety product rules | this repository, subordinate to Core safety/governance |
+| Daughter life-stage / continuity rules | this repository |
 | Daughter code / architecture | this repository |
 | Daughter database | future dedicated backend, once registered |
 | Daughter production runtime | future deployment, once registered |
@@ -188,13 +236,16 @@ The project now has a defined product direction:
 - conversational,
 - emotionally understanding,
 - learning and improving,
-- child-safety first.
+- child-safety first during childhood,
+- intended to preserve companion continuity as the user grows into adulthood.
 
 The project is still NOT ready for application/backend implementation because these remain undefined:
-- exact child age range / user profile,
+- exact starting age range / user profile,
 - guardian/parent role and controls,
+- life-stage transition rules,
 - autonomy and approval matrix,
-- privacy / retention rules for child data,
+- privacy / retention rules for child and adult data,
+- ownership transfer / control transition into adulthood,
 - first concrete feature set,
 - interface / embodiment,
 - persistent-memory policy,
@@ -202,20 +253,21 @@ The project is still NOT ready for application/backend implementation because th
 
 ## First Development Milestone
 
-Milestone 0 — Safety + Product Definition
+Milestone 0 — Safety + Product + Life-Stage Definition
 
 Complete when the project has explicit answers for:
-1. What age range is the daughter designed for?
-2. Who is the authorized guardian/admin?
-3. Which actions can the daughter take independently?
-4. Which actions always require guardian approval?
-5. What information about the child may be remembered, for how long, and who can review/delete it?
-6. What should the daughter do when it detects a safety concern?
-7. What is the smallest useful first-version feature set?
-8. How will companionship quality, usefulness, and safety be tested?
+1. What starting age range is the daughter designed for?
+2. Who is the authorized guardian/admin during childhood?
+3. Which actions can the daughter take independently at each life stage?
+4. Which actions require guardian approval during childhood?
+5. How and when does privacy/control progressively transfer toward the growing user?
+6. What information may be remembered, for how long, and how does memory policy change across life stages?
+7. What should the daughter do when it detects a safety concern?
+8. What is the smallest useful first-version feature set?
+9. How will companionship quality, usefulness, continuity, and safety be tested?
 
 Only after Milestone 0 is defined should the project create application architecture or backend infrastructure.
 
 ## Current State
 
-`IDENTITY DEFINED — SAFETY/PRODUCT BOUNDARY DESIGN REQUIRED`
+`IDENTITY + LIFELONG CONTINUITY DEFINED — SAFETY/LIFE-STAGE BOUNDARY DESIGN REQUIRED`
