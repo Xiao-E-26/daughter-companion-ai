@@ -5,9 +5,9 @@ import type {
   RuntimeContext,
   RuntimeRequest,
   RuntimeResponse,
-} from "./contracts";
-import type { ModelAdapter } from "./model_adapter";
-import { safetyGate } from "./safety_gate";
+} from "./contracts.ts";
+import type { ModelAdapter } from "./model_adapter.ts";
+import { safetyGate } from "./safety_gate.ts";
 
 export interface RuntimeDependencies {
   loadContext(request: RuntimeRequest): Promise<RuntimeContext>;
