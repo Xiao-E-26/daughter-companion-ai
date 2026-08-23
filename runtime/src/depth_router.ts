@@ -1,4 +1,4 @@
-import type { DepthLevel } from "./contracts";
+import type { DepthLevel } from "./contracts.ts";
 
 export interface DepthSignals {
   emotionalIntensity?: "low" | "medium" | "high";
