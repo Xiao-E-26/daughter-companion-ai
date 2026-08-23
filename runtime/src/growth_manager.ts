@@ -1,4 +1,4 @@
-import type { GrowthContext } from "./contracts";
+import type { GrowthContext } from "./contracts.ts";
 
 export interface GrowthSignals {
   understandsConsequences?: boolean;
@@ -47,8 +47,6 @@ export function suggestCoreStage(
   const independent = values.filter((v) => v === "independent").length;
   const supported = values.filter((v) => v === "supported").length;
 
-  // Growth is directional but not gamified. A stage change is only a suggestion;
-  // persistence requires a separate reviewed decision.
   if (supported >= 3) return "protective_companionship";
   if (independent >= 3) return "mature_companionship";
   if (independent >= 1) return "autonomy_building";
