@@ -1,4 +1,4 @@
-import type { ModelInput, ModelOutput } from "./contracts";
+import type { ModelInput, ModelOutput } from "./contracts.ts";
 
 export interface ModelAdapter {
   generate(input: ModelInput): Promise<ModelOutput>;
