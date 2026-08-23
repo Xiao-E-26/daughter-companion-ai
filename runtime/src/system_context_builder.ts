@@ -3,7 +3,7 @@ import type {
   ProblemPlan,
   RuntimeContext,
   RuntimeRequest,
-} from "./contracts";
+} from "./contracts.ts";
 
 function list(label: string, items: string[]): string {
   return `${label}: ${items.length ? items.join(" | ") : "none"}`;
