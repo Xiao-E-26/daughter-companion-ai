@@ -311,24 +311,6 @@ Future guardian tooling should prefer:
 
 Avoid designing a hidden full-transcript parent surveillance system as the default architecture.
 
-## Growth Safety Reference
-
-Detailed rules for:
-- emotional warmth without sycophancy,
-- no exclusivity or possessiveness,
-- dependency-risk handling,
-- real-world relationship priority,
-- human/AI boundary,
-- competence preservation,
-- productive friction,
-- safe disengagement,
-
-are governed by:
-
-`GROWTH_SAFETY_BASELINE_V1.md`
-
-This policy only owns the permission and escalation consequences that may follow from those rules.
-
 ## Approval Semantics
 
 An approval should contain, when implemented:
