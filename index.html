@@ -18,7 +18,7 @@
     .msg{max-width:86%;padding:13px 15px;border-radius:18px;line-height:1.5;font-size:17px}.ai{align-self:flex-start;background:#f0f3f8}.user{align-self:flex-end;background:#172033;color:white}
     .hint{font-size:14px;color:#6f7a8c;text-align:center}.controls{display:grid;grid-template-columns:1fr auto;gap:10px}
     input{width:100%;border:1px solid #dbe1ea;border-radius:18px;padding:15px 16px;font-size:17px;outline:none;background:white;color:#172033}
-    input:focus{border-color:#8fa0bf}.send{border:0;border-radius:18px;padding:0 20px;font-weight:800;font-size:16px;background:#172033;color:#fff}
+    input:focus{border-color:#8fa0bf}.send{border:0;border-radius:18px;padding:0 20px;font-weight:800;font-size:16px;background:#172033;color:#fff}.send:disabled{opacity:.55}
     .voicebar{display:grid;grid-template-columns:1fr 1fr;gap:10px}.voice{border:0;border-radius:20px;padding:16px 14px;font-size:17px;font-weight:800;background:#eef2ff;color:#172033}.voice.listening{background:#ffe8e8;color:#9f2020}.voice.secondary{background:#f0f3f8}
     .foot{font-size:12px;line-height:1.45;color:#7d8796;text-align:center;padding:0 10px}
     @media(max-width:480px){.app{padding-top:16px}.hero{padding:24px}.chat{padding:14px}.voicebar{grid-template-columns:1fr}}
@@ -48,13 +48,14 @@
         <input id="input" type="text" autocomplete="off" placeholder="也可以打字给我…" aria-label="输入消息" />
         <button id="sendBtn" class="send">发送</button>
       </div>
-      <div id="hint" class="hint">语音功能会根据手机浏览器支持情况自动开启。</div>
+      <div id="hint" class="hint">AI 已连接。语音输入会根据手机浏览器支持情况自动开启。</div>
     </section>
 
-    <div class="foot">这是 Daughter 的孩子端界面。AI 对话后端与 Guardian 安全层将继续接入；当前版本先建立语音输入、文字对话界面与本机语音朗读能力。</div>
+    <div class="foot">Daughter 会以孩子安全、学习、成长与解决问题为优先；需要现实世界帮助时，应联系父母、Guardian 或其他可信任的大人。</div>
   </main>
 
   <script>
+    const CHAT_URL = 'https://vmegjuceiuplqixizwso.supabase.co/functions/v1/daughter-chat';
     const messages = document.getElementById('messages');
     const input = document.getElementById('input');
     const sendBtn = document.getElementById('sendBtn');
@@ -62,6 +63,7 @@
     const speakBtn = document.getElementById('speakBtn');
     const hint = document.getElementById('hint');
     let lastAIText = '你好呀。今天想和我聊什么？';
+    let busy = false;
 
     function addMessage(text, who='user') {
       const el = document.createElement('div');
@@ -69,6 +71,7 @@
       el.textContent = text;
       messages.appendChild(el);
       messages.scrollTop = messages.scrollHeight;
+      return el;
     }
 
     function speak(text) {
@@ -83,16 +86,49 @@
       speechSynthesis.speak(u);
     }
 
-    function submitText() {
+    async function askDaughter(text) {
+      const response = await fetch(CHAT_URL, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ message: text })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.reply) {
+        const code = data.code ? ` (${data.code})` : '';
+        throw new Error(`AI 暂时无法回答${code}`);
+      }
+      return data.reply;
+    }
+
+    async function submitText() {
       const text = input.value.trim();
-      if (!text) return;
+      if (!text || busy) return;
       addMessage(text, 'user');
       input.value = '';
-      lastAIText = '我听到了。我的 AI 对话大脑还在接入中，很快就可以正式回答你。';
-      setTimeout(() => {
+      busy = true;
+      sendBtn.disabled = true;
+      input.disabled = true;
+      hint.textContent = 'Daughter 正在想…';
+      const thinking = addMessage('我想一想…', 'ai');
+
+      try {
+        const reply = await askDaughter(text);
+        thinking.remove();
+        lastAIText = reply;
+        addMessage(reply, 'ai');
+        hint.textContent = '可以继续问我。';
+        speak(reply);
+      } catch (err) {
+        thinking.remove();
+        lastAIText = '我现在暂时连不上大脑，请等一下再试。';
         addMessage(lastAIText, 'ai');
-        speak(lastAIText);
-      }, 250);
+        hint.textContent = String(err.message || err);
+      } finally {
+        busy = false;
+        sendBtn.disabled = false;
+        input.disabled = false;
+        input.focus();
+      }
     }
 
     sendBtn.addEventListener('click', submitText);
@@ -124,6 +160,7 @@
         submitText();
       };
       micBtn.addEventListener('click', () => {
+        if (busy) return;
         try { rec.start(); } catch(e) {}
       });
     } else {
