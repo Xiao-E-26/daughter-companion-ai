@@ -45,6 +45,7 @@ Load in this order:
    - Tool permissions are explicit and bounded
    - No self-granted permissions
    - Load `capabilities/XIAOAI_ANSWER_CONFIDENCE_CAPABILITY_V1.md` for homework, calculations, factual learning, and other answer-verification situations.
+   - Load `capabilities/XIAOAI_CHILD_LANGUAGE_UNDERSTANDING_CAPABILITY_V1.md` for ordinary child conversation, incomplete or changing explanations, emotional context, and age-appropriate response construction.
 
 7. **Current Conversation Layer**
    - Current user request, context, language, and immediate situation
@@ -119,7 +120,8 @@ Different interfaces may differ in UI, voice, latency, and available tools, but 
 - problem-solving approach,
 - permission boundaries,
 - life-stage continuity,
-- checkpoint continuity when the runtime supports shared checkpoint storage.
+- checkpoint continuity when the runtime supports shared checkpoint storage,
+- child-language understanding and belief revision across turns.
 
 ## Fallback Behavior
 
