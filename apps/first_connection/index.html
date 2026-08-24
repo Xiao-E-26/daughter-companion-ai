@@ -2,32 +2,37 @@
 <html lang="zh-Hans">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff" />
   <title>Daughter · First Connection</title>
   <style>
+    * { box-sizing: border-box; }
     :root { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #f7f7f7; color: #111; }
-    main { width: min(92vw, 560px); background: white; border-radius: 24px; padding: 28px; box-shadow: 0 12px 40px rgba(0,0,0,.08); }
-    h1 { margin-top: 0; font-size: 28px; }
-    .phrase { padding: 16px; border-radius: 16px; background: #f1f1f1; line-height: 1.6; }
-    button { width: 100%; margin-top: 18px; padding: 16px; border: 0; border-radius: 16px; font-size: 18px; cursor: pointer; }
+    body { margin: 0; min-height: 100svh; display: grid; place-items: center; padding: 20px; background: #f7f7f7; color: #111; }
+    main { width: min(100%, 560px); background: white; border-radius: 24px; padding: 28px; box-shadow: 0 12px 40px rgba(0,0,0,.08); }
+    h1 { margin: 0 0 8px; font-size: 28px; }
+    .sub { margin: 0 0 20px; color: #666; }
+    .phrase { padding: 16px; border-radius: 16px; background: #f1f1f1; line-height: 1.6; font-size: 18px; }
+    button { width: 100%; margin-top: 18px; padding: 16px; border: 0; border-radius: 16px; font-size: 18px; cursor: pointer; background: #111; color: #fff; }
+    button:disabled { opacity: .55; }
     #status, #transcript, #response { margin-top: 16px; line-height: 1.6; }
-    #response { font-weight: 600; }
+    #response { font-weight: 600; font-size: 18px; }
     .muted { color: #666; font-size: 14px; }
   </style>
 </head>
 <body>
   <main>
     <h1>First Connection</h1>
-    <p>雨宸，请按下按钮，然后对着麦克风说：</p>
+    <p class="sub">Daughter 第一次和雨宸建立连接。</p>
     <div class="phrase">“Hi，我是曹雨宸，请连接 Daughter。”</div>
     <button id="connectButton">🎙️ 开始连接</button>
-    <div id="status" class="muted">等待开始。</div>
+    <div id="status" class="muted">等待雨宸。</div>
     <div id="transcript"></div>
     <div id="response"></div>
   </main>
 
 <script>
+const FIRST_CONNECTION_API = 'https://vmegjuceiuplqixizwso.supabase.co/functions/v1/daughter-first-connection';
 const button = document.getElementById('connectButton');
 const statusEl = document.getElementById('status');
 const transcriptEl = document.getElementById('transcript');
@@ -35,6 +40,38 @@ const responseEl = document.getElementById('response');
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recognition = null;
+
+async function submitConnection(transcript) {
+  transcriptEl.textContent = '我听到：' + transcript;
+  statusEl.textContent = '正在建立连接…';
+  responseEl.textContent = '';
+
+  try {
+    const res = await fetch(FIRST_CONNECTION_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ transcript })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.connected) {
+      statusEl.textContent = '还没有连接成功。';
+      responseEl.textContent = '请再说一次连接句。';
+      return;
+    }
+
+    statusEl.textContent = 'Connected';
+    responseEl.textContent = data.response_text;
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(data.response_text);
+      utterance.lang = 'zh-CN';
+      window.speechSynthesis.speak(utterance);
+    }
+  } catch (err) {
+    statusEl.textContent = '连接服务目前不可用。';
+    responseEl.textContent = String(err);
+  }
+}
 
 if (SpeechRecognition) {
   recognition = new SpeechRecognition();
@@ -48,7 +85,7 @@ if (SpeechRecognition) {
   };
 
   recognition.onerror = (event) => {
-    statusEl.textContent = '语音识别失败：' + event.error;
+    statusEl.textContent = '语音识别没有完成：' + event.error;
     button.disabled = false;
   };
 
@@ -56,33 +93,8 @@ if (SpeechRecognition) {
     button.disabled = false;
   };
 
-  recognition.onresult = async (event) => {
-    const transcript = event.results[0][0].transcript;
-    transcriptEl.textContent = '我听到：' + transcript;
-    statusEl.textContent = '正在建立连接…';
-
-    try {
-      const res = await fetch('/api/first-connection', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ transcript })
-      });
-      const data = await res.json();
-      if (!res.ok || !data.connected) {
-        statusEl.textContent = '还没有连接成功。';
-        responseEl.textContent = data.reason || '请再试一次。';
-        return;
-      }
-      statusEl.textContent = 'Connected';
-      responseEl.textContent = data.response_text;
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(new SpeechSynthesisUtterance(data.response_text));
-      }
-    } catch (err) {
-      statusEl.textContent = '连接服务目前不可用。';
-      responseEl.textContent = String(err);
-    }
+  recognition.onresult = (event) => {
+    submitConnection(event.results[0][0].transcript);
   };
 }
 
@@ -90,7 +102,7 @@ button.addEventListener('click', () => {
   responseEl.textContent = '';
   transcriptEl.textContent = '';
   if (!recognition) {
-    statusEl.textContent = '这个浏览器没有提供语音转文字接口。请改用支持 SpeechRecognition 的浏览器，或以后接正式语音输入。';
+    statusEl.textContent = '此浏览器目前没有提供 SpeechRecognition。之后会接正式的 iPhone 录音与声纹入口。';
     return;
   }
   recognition.start();
