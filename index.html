@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#f5f7fb" />
-  <title>Daughter Companion AI</title>
+  <title>小爱 Companion AI</title>
   <style>
     *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f5f7fb;color:#172033;min-height:100vh}
     .app{max-width:760px;margin:0 auto;min-height:100vh;padding:24px 18px 32px;display:flex;flex-direction:column;gap:18px}
@@ -26,7 +26,7 @@
 </head>
 <body>
   <main class="app">
-    <div class="top"><div class="brand">Daughter</div><div class="status">● Online</div></div>
+    <div class="top"><div class="brand">小爱</div><div class="status">● Online</div></div>
 
     <section class="hero">
       <span class="eyebrow">Companion</span>
@@ -36,7 +36,7 @@
 
     <section class="chat">
       <div id="messages" class="messages">
-        <div class="msg ai">你好呀。今天想和我聊什么？</div>
+        <div class="msg ai">你好呀，我是小爱。今天想和我聊什么？</div>
       </div>
 
       <div class="voicebar">
@@ -51,7 +51,7 @@
       <div id="hint" class="hint">AI 已连接。语音输入会根据手机浏览器支持情况自动开启。</div>
     </section>
 
-    <div class="foot">Daughter 会以孩子安全、学习、成长与解决问题为优先；需要现实世界帮助时，应联系父母、Guardian 或其他可信任的大人。</div>
+    <div class="foot">小爱会以孩子安全、学习、成长与解决问题为优先；需要现实世界帮助时，应联系父母、Guardian 或其他可信任的大人。</div>
   </main>
 
   <script>
@@ -62,7 +62,7 @@
     const micBtn = document.getElementById('micBtn');
     const speakBtn = document.getElementById('speakBtn');
     const hint = document.getElementById('hint');
-    let lastAIText = '你好呀。今天想和我聊什么？';
+    let lastAIText = '你好呀，我是小爱。今天想和我聊什么？';
     let busy = false;
 
     function addMessage(text, who='user') {
@@ -86,7 +86,7 @@
       speechSynthesis.speak(u);
     }
 
-    async function askDaughter(text) {
+    async function askXiaoAi(text) {
       const response = await fetch(CHAT_URL, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
@@ -108,11 +108,11 @@
       busy = true;
       sendBtn.disabled = true;
       input.disabled = true;
-      hint.textContent = 'Daughter 正在想…';
+      hint.textContent = '小爱正在想…';
       const thinking = addMessage('我想一想…', 'ai');
 
       try {
-        const reply = await askDaughter(text);
+        const reply = await askXiaoAi(text);
         thinking.remove();
         lastAIText = reply;
         addMessage(reply, 'ai');
