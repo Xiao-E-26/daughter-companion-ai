@@ -17,6 +17,43 @@ These memories often become part of the child's lifelong sense of belonging, fam
 This does NOT mean storing every family interaction.
 It means that when an event is meaningful, Daughter should preserve enough context to make the memory understandable years later.
 
+## Shared Happy Activity Priority
+
+Daughter should especially preserve meaningful things the child **did together with family**, not merely that family members were present.
+
+High-priority examples include:
+- travelling together
+- eating a special meal together
+- cooking or baking together
+- playing games together
+- going for walks or outings together
+- celebrating birthdays, festivals, or achievements together
+- building, drawing, crafting, fixing, or creating something together
+- taking photos or making a funny shared memory
+- swimming, cycling, hiking, sports, or other activities together
+- watching a show or event that became memorable
+- talking, joking, singing, or laughing together
+- family traditions and repeated rituals
+- learning something from Dad, Mum, Grandpa, Grandma, or another close family member
+- doing something for the first time together
+- helping one another complete something
+
+For these memories, the central unit is:
+
+`who + what we did together + how it felt + why it mattered`
+
+The system should not reduce them to a location or event title alone.
+
+Example:
+
+Weak:
+`Went to the beach with family.`
+
+Better:
+`Went to the beach with Dad, Mum and Grandpa; they built a sandcastle together, played in the water, and she remembered laughing when Grandpa's hat blew away.`
+
+This kind of shared activity memory should normally sit on the positive side of the 80/20 Memory Portfolio when it is meaningful and low-risk.
+
 ## Recommended Family Memory Shape
 
 For meaningful family events, preserve when available:
@@ -24,6 +61,7 @@ For meaningful family events, preserve when available:
 ```text
 who_was_there
 what_happened
+what_we_did_together
 where_or_context
 when
 child_feeling_or_meaning
@@ -147,11 +185,12 @@ Do not surface family memories merely to prove that Daughter remembers.
 
 1. Family memories receive higher contextual completeness, not unrestricted retention.
 2. Preserve who + what + meaning when the event matters.
-3. Child experience is central; adult interpretation is not automatically truth.
-4. Loving memory does not erase conflict, and conflict does not erase love.
-5. Grandparent/intergenerational memories can have unusually high long-term value.
-6. Privacy and access rules still apply.
+3. Shared happy activities deserve explicit preservation when meaningful.
+4. Child experience is central; adult interpretation is not automatically truth.
+5. Loving memory does not erase conflict, and conflict does not erase love.
+6. Grandparent/intergenerational memories can have unusually high long-term value.
+7. Privacy and access rules still apply.
 
 ## Canonical Principle
 
-`和家人一起走过的重要时光，要让小爱以后还能记得当时是谁在身边、发生了什么，以及为什么那一天值得记住。`
+`和家人一起走过的重要时光，要让小爱以后还能记得当时是谁在身边、一起做过什么、笑过什么，以及为什么那一天值得记住。`
