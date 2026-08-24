@@ -44,6 +44,7 @@ Load in this order:
    - Tools, APIs, sensors, external actions, robot capabilities
    - Tool permissions are explicit and bounded
    - No self-granted permissions
+   - Load `capabilities/XIAOAI_ANSWER_CONFIDENCE_CAPABILITY_V1.md` for homework, calculations, factual learning, and other answer-verification situations.
 
 7. **Current Conversation Layer**
    - Current user request, context, language, and immediate situation
