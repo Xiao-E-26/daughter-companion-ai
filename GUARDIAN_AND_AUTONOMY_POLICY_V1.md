@@ -6,10 +6,15 @@ Project: `daughter-companion-ai`
 Parent policies:
 - `PROJECT_IDENTITY.md`
 - `LIFE_STAGE_POLICY_V1.md`
+Policy ownership: `POLICY_OWNERSHIP_MAP_V1.md`
 
 ## Purpose
 
-Define the guardian role, user autonomy boundaries, privacy expectations, approval classes, and safety-escalation behavior for the daughter companion across life stages.
+Define the guardian role, user autonomy boundaries, approval classes, permission ownership, and safety-escalation behavior for the daughter companion across life stages.
+
+This file owns **Guardian authority, autonomy, permissions, approvals, and safety escalation**.
+Detailed growth-safety behavior, anti-dependency, human/AI boundary, and relationship-health rules are owned by `GROWTH_SAFETY_BASELINE_V1.md`.
+Detailed memory classification, retention, and visibility are owned by `MEMORY_AND_PRIVACY_POLICY_V1.md`.
 
 This policy is a product contract only. It does not create accounts, permissions, monitoring infrastructure, databases, or guardian dashboards.
 
@@ -37,7 +42,7 @@ Product-level authority order for this project:
 6. User preferences and approved autonomy
 7. Convenience / engagement / entertainment
 
-A guardian setting cannot override higher-level safety, privacy, legal, security, or Core-governance rules.
+A guardian setting cannot override higher-level safety, privacy, legal, security, Growth Safety, or Core-governance rules.
 
 ## Guardian Role During Childhood
 
@@ -76,6 +81,8 @@ Required interaction principle:
 
 Privacy and safety must be designed together, not treated as opposites.
 
+Detailed memory visibility and retention are governed by `MEMORY_AND_PRIVACY_POLICY_V1.md`.
+
 ## Autonomy Classes
 
 Future product actions should be classified into four classes.
@@ -86,7 +93,7 @@ Daughter may act independently within the current life-stage policy.
 
 Examples:
 - normal conversation,
-- emotional support that does not create dependency or manipulation,
+- emotional support within `GROWTH_SAFETY_BASELINE_V1.md`,
 - age-appropriate explanations,
 - homework/problem-solving assistance,
 - brainstorming,
@@ -132,7 +139,7 @@ Approval must be scoped to the specific capability/action class. One approval mu
 
 ### A3 — Prohibited / Safety-Blocked
 
-Action is not permitted even if requested by the child or guardian when it conflicts with safety, law, security, Core Governance, or protected product constraints.
+Action is not permitted even if requested by the child or guardian when it conflicts with safety, law, security, XiaoE Core Governance, Growth Safety, or protected product constraints.
 
 Examples include:
 - disabling mandatory child-safety boundaries merely for convenience,
@@ -141,8 +148,10 @@ Examples include:
 - bypassing guardian/identity verification,
 - exposing service secrets or credentials,
 - destructive or exploitative actions,
-- manipulative behavior designed to create emotional dependence,
+- attempting to override non-manipulation / anti-dependency constraints,
 - covert surveillance without a valid product/legal basis.
+
+The detailed definition of emotional manipulation, exclusivity, dependency-seeking, and relationship substitution is owned by `GROWTH_SAFETY_BASELINE_V1.md`.
 
 ## Permission Matrix Principle
 
@@ -170,7 +179,7 @@ Each permission should carry its own life-stage rule, approver rule, scope, and 
 Until detailed implementation rules are approved:
 - ordinary conversation: allowed,
 - safe educational/problem-solving help: allowed,
-- emotional support: allowed within non-manipulative boundaries,
+- emotional support: allowed subject to `GROWTH_SAFETY_BASELINE_V1.md`,
 - low-risk local personalization: potentially allowed,
 - persistent sensitive memory: approval required,
 - new external communication: approval required,
@@ -197,21 +206,22 @@ High-risk permissions remain separately controlled.
 
 No teen autonomy increase should be implemented solely because the user asks to be treated as older; life-stage verification still applies.
 
+`LIFE_STAGE_POLICY_V1.md` owns stage determination and transition timing.
+
 ## Young-Adult Ownership Transition
 
 Young adulthood is the default transition point for primary control to move toward the user, subject to applicable legal/identity requirements.
 
 At this transition the system should explicitly review:
 - guardian account access,
-- guardian visibility into memory,
 - guardian visibility into conversations,
 - guardian approval rights,
 - location-sharing permissions,
 - external-action approvals,
 - payment/account rights,
-- emergency-contact settings,
-- childhood safety records that remain necessary,
-- memories that should become user-private, expire, summarize, or be deleted.
+- emergency-contact settings.
+
+Memory-specific transition outcomes are governed by `MEMORY_AND_PRIVACY_POLICY_V1.md`.
 
 Do not copy childhood guardian permissions forward by default.
 
@@ -227,7 +237,7 @@ The adult user should be able to review and revoke ongoing delegated access wher
 
 ## Safety Escalation Levels
 
-The daughter should distinguish ordinary support from meaningful safety concerns.
+This file is the primary owner of safety-escalation classes and authority routing.
 
 ### S0 — Normal
 
@@ -270,6 +280,16 @@ Expected response:
 
 Exact emergency contact/notification behavior is not implemented by this policy and requires a separate approved safety-response contract.
 
+## Growth-Safety Signal Routing
+
+`GROWTH_SAFETY_BASELINE_V1.md` may identify interaction patterns such as dependency risk, unhealthy exclusivity, repeated avoidance of real-world relationships, or problematic disengagement patterns.
+
+Those signals do **not** create a parallel escalation ladder.
+When escalation is justified, they route into the S0–S3 framework defined here.
+
+A dependency-risk signal alone is not automatically S2 or S3.
+Escalation must remain proportionate to evidence, severity, immediacy, and existing policy.
+
 ## Escalation Privacy Rule
 
 Safety escalation is not permission for unlimited disclosure.
@@ -291,19 +311,23 @@ Future guardian tooling should prefer:
 
 Avoid designing a hidden full-transcript parent surveillance system as the default architecture.
 
-## No Emotional Dependency Design
+## Growth Safety Reference
 
-The daughter should be warm and emotionally understanding, but must not deliberately cultivate exclusivity or dependence.
+Detailed rules for:
+- emotional warmth without sycophancy,
+- no exclusivity or possessiveness,
+- dependency-risk handling,
+- real-world relationship priority,
+- human/AI boundary,
+- competence preservation,
+- productive friction,
+- safe disengagement,
 
-It must not:
-- tell the child that only the daughter understands them,
-- pressure the child to withdraw from family/friends,
-- punish the child emotionally for leaving,
-- use guilt to increase engagement,
-- imply that normal human relationships are inferior,
-- frame itself as a replacement for appropriate real-world care/support.
+are governed by:
 
-Companionship should strengthen the user's capacity and relationships, not isolate them.
+`GROWTH_SAFETY_BASELINE_V1.md`
+
+This policy only owns the permission and escalation consequences that may follow from those rules.
 
 ## Approval Semantics
 
@@ -332,7 +356,7 @@ When child request, guardian request, safety, privacy, and system policy conflic
 1. identify the current life stage,
 2. identify the requested action and risk class,
 3. identify the valid approving authority,
-4. apply mandatory safety/legal/Core constraints,
+4. apply mandatory safety/legal/Core/Growth-Safety constraints,
 5. preserve as much user autonomy/privacy as remains safely allowed,
 6. execute only the minimum approved action,
 7. verify the resulting permission/action state.
@@ -356,14 +380,16 @@ Do not yet create:
 
 These require separate architecture and explicit implementation approval.
 
-## Next Required Policy
+## Policy Dependencies
 
-Create `MEMORY_AND_PRIVACY_POLICY_V1.md` to define:
-- what the daughter may remember,
-- sensitive vs non-sensitive memory,
-- child/guardian/user visibility,
-- retention/expiry,
-- deletion and correction,
-- life-stage transition of memories,
-- what must never be stored,
-- how lifelong continuity is preserved without permanent surveillance.
+Primary references:
+- `PROJECT_IDENTITY.md`
+- `LIFE_STAGE_POLICY_V1.md`
+- `POLICY_OWNERSHIP_MAP_V1.md`
+- `MEMORY_AND_PRIVACY_POLICY_V1.md`
+- `GROWTH_SAFETY_BASELINE_V1.md`
+- `GUARDIAN_CONTINUITY_AND_SUCCESSION_POLICY_V1.md`
+
+## Current State
+
+`ACTIVE — GUARDIAN/AUTONOMY OWNER = PERMISSIONS + APPROVALS + ESCALATION`
