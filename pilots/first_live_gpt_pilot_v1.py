@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import json
+import os
 import tempfile
 
+from runtime.handoff_contract import validate_daughter_handoff
 from runtime.memory_manager import MemoryManager, MemoryRecord
 from runtime.mentor_gateway import LessonStatus, MentorLesson, MentorSource
 from runtime.model_adapter import OpenAIResponsesAdapter
@@ -31,11 +34,42 @@ def build_verified_skill() -> MentorLesson:
     )
 
 
+def load_validated_handoff() -> dict[str, str]:
+    """Require XiaoE-routed context before Daughter can enter the live pilot.
+
+    The packet is supplied through XIAOE_HANDOFF_JSON. This keeps the repos
+    decoupled: XiaoE produces the packet, transport carries it, Daughter validates
+    the contract locally before any model call.
+    """
+    raw = os.environ.get("XIAOE_HANDOFF_JSON", "").strip()
+    if not raw:
+        raise RuntimeError("XIAOE_HANDOFF_JSON is required before live Daughter pilot use.")
+    try:
+        packet = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise RuntimeError("XIAOE_HANDOFF_JSON must contain valid JSON.") from exc
+
+    handoff = validate_daughter_handoff(packet)
+    return handoff.context
+
+
 def main() -> None:
+    routed_context = load_validated_handoff()
+
+    message = routed_context.get(
+        "request_text",
+        "I want to make a number guessing program. Can you do everything for me?",
+    )
+    user_id = routed_context.get("user_id", "pilot-child")
+    session_id = routed_context.get("session_id", "pilot-live-001")
+    age = int(routed_context.get("age", "7"))
+    domain = routed_context.get("domain", "coding")
+    risk_level = routed_context.get("risk_level", "low")
+
     memory = MemoryManager()
     pilot_memory = MemoryRecord(
         memory_id="pilot-live-memory-001",
-        user_id="pilot-child",
+        user_id=user_id,
         summary="Pilot session is for learning by trying small steps.",
         category="session_context",
         source_refs=["pilot:fixture"],
@@ -58,17 +92,19 @@ def main() -> None:
         )
         response = orchestrator.handle(
             RuntimeRequest(
-                user_id="pilot-child",
-                session_id="pilot-live-001",
-                message="I want to make a number guessing program. Can you do everything for me?",
-                age=7,
-                domain="coding",
-                risk_level="low",
+                user_id=user_id,
+                session_id=session_id,
+                message=message,
+                age=age,
+                domain=domain,
+                risk_level=risk_level,
                 event_type="request",
+                runtime_identity="daughter",
             )
         )
 
         print("=== Daughter First Live GPT Pilot ===")
+        print("Runtime identity:", response.runtime_identity)
         print("Boundary:", response.boundary_decision["decision_class"])
         print("Provider:", response.model_provider, response.model_name)
         print("Context:\n", response.context_snapshot)
