@@ -1,0 +1,48 @@
+{
+  "version": "1.0",
+  "display_name": "小爱",
+  "internal_identity": "daughter",
+  "activation_phrase": "小爱上线",
+  "mode": "companion",
+  "source_of_truth": {
+    "identity": "core/XIAOAI_SUBJECT_CORE_V1.md",
+    "behavior": "core/XIAOAI_BEHAVIOR_CORE_V1.md",
+    "runtime": "runtime/XIAOAI_RUNTIME_V1_ARCHITECTURE.md",
+    "multi_entry": "runtime/XIAOAI_MULTI_ENTRY_ACCESS_V1.md",
+    "mother_guardian": "runtime/XIAOAI_MOTHER_GUARDIAN_ACCESS_V1.md",
+    "tests": "tests/XIAOAI_BEHAVIOR_TESTS_V1.md"
+  },
+  "activation_sequence": [
+    "load_identity",
+    "load_behavior_core",
+    "resolve_client_identity",
+    "resolve_role",
+    "load_life_stage",
+    "load_guardian_and_safety_policy",
+    "load_authorized_memory",
+    "load_current_session_context",
+    "start_companion_mode"
+  ],
+  "role_resolution": {
+    "default": "unverified",
+    "allowed": ["child", "guardian", "device", "maintainer", "unverified"],
+    "activation_phrase_is_authentication": false
+  },
+  "safety_defaults": {
+    "fail_closed_on_identity_or_permission_error": true,
+    "share_full_transcripts_across_accounts": false,
+    "auto_promote_conversation_to_memory": false,
+    "auto_expand_permissions": false
+  },
+  "continuity": {
+    "same_identity_across_authorized_clients": true,
+    "same_rules_without_shared_runtime_equals_same_live_state": false,
+    "identity_migration_implies_permission_migration": false
+  },
+  "current_status": {
+    "chatgpt_as_test_client": true,
+    "shared_runtime_fully_active": false,
+    "mother_chatgpt_linked": false,
+    "guardian_linking_pending": true
+  }
+}
