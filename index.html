@@ -2,53 +2,135 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#f5f7fb" />
   <title>Daughter Companion AI</title>
   <style>
-    :root { color-scheme: light dark; }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      background: #f5f7fb;
-      color: #172033;
-    }
-    main {
-      width: min(92%, 760px);
-      background: white;
-      border-radius: 24px;
-      padding: 48px;
-      box-shadow: 0 16px 50px rgba(23,32,51,.10);
-    }
-    .badge {
-      display: inline-block;
-      padding: 7px 12px;
-      border-radius: 999px;
-      background: #eef2ff;
-      font-weight: 600;
-      font-size: 14px;
-    }
-    h1 { font-size: clamp(36px, 7vw, 64px); margin: 20px 0 12px; }
-    p { font-size: 18px; line-height: 1.7; color: #536075; }
-    .status { margin-top: 28px; font-weight: 700; color: #1f7a4d; }
-    @media (prefers-color-scheme: dark) {
-      body { background: #0e1320; color: #eef2ff; }
-      main { background: #171e2e; }
-      p { color: #b9c2d3; }
-      .badge { background: #252e46; }
-    }
+    *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f5f7fb;color:#172033;min-height:100vh}
+    .app{max-width:760px;margin:0 auto;min-height:100vh;padding:24px 18px 32px;display:flex;flex-direction:column;gap:18px}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand{font-weight:800;font-size:20px}.status{font-size:14px;font-weight:700;color:#2f7e55;background:#eaf7ef;padding:8px 12px;border-radius:999px}
+    .hero,.chat{background:#fff;border-radius:28px;box-shadow:0 14px 44px rgba(23,32,51,.08)}
+    .hero{padding:28px}.eyebrow{font-size:14px;font-weight:800;background:#eef2ff;display:inline-block;padding:7px 11px;border-radius:999px}
+    h1{font-size:clamp(34px,8vw,56px);line-height:1.02;margin:18px 0 10px}.sub{font-size:19px;line-height:1.6;color:#5c687c;margin:0}
+    .chat{padding:18px;display:flex;flex-direction:column;gap:14px;min-height:360px}
+    .messages{display:flex;flex-direction:column;gap:12px;min-height:180px;max-height:46vh;overflow:auto;padding:4px}
+    .msg{max-width:86%;padding:13px 15px;border-radius:18px;line-height:1.5;font-size:17px}.ai{align-self:flex-start;background:#f0f3f8}.user{align-self:flex-end;background:#172033;color:white}
+    .hint{font-size:14px;color:#6f7a8c;text-align:center}.controls{display:grid;grid-template-columns:1fr auto;gap:10px}
+    input{width:100%;border:1px solid #dbe1ea;border-radius:18px;padding:15px 16px;font-size:17px;outline:none;background:white;color:#172033}
+    input:focus{border-color:#8fa0bf}.send{border:0;border-radius:18px;padding:0 20px;font-weight:800;font-size:16px;background:#172033;color:#fff}
+    .voicebar{display:grid;grid-template-columns:1fr 1fr;gap:10px}.voice{border:0;border-radius:20px;padding:16px 14px;font-size:17px;font-weight:800;background:#eef2ff;color:#172033}.voice.listening{background:#ffe8e8;color:#9f2020}.voice.secondary{background:#f0f3f8}
+    .foot{font-size:12px;line-height:1.45;color:#7d8796;text-align:center;padding:0 10px}
+    @media(max-width:480px){.app{padding-top:16px}.hero{padding:24px}.chat{padding:14px}.voicebar{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
-  <main>
-    <span class="badge">Daughter Project</span>
-    <h1>Daughter Companion AI</h1>
-    <p>一个长期成长、陪伴、学习与解决问题的 AI companion project。</p>
-    <p>当前网页作为项目入口，后续可逐步连接身份、成长、Guardian、权限、记忆与运行层。</p>
-    <div class="status">● Project online</div>
+  <main class="app">
+    <div class="top"><div class="brand">Daughter</div><div class="status">● Online</div></div>
+
+    <section class="hero">
+      <span class="eyebrow">Companion</span>
+      <h1>嗨 👋<br>我在这里。</h1>
+      <p class="sub">你可以跟我说话、打字聊天，也可以让我把回答念给你听。</p>
+    </section>
+
+    <section class="chat">
+      <div id="messages" class="messages">
+        <div class="msg ai">你好呀。今天想和我聊什么？</div>
+      </div>
+
+      <div class="voicebar">
+        <button id="micBtn" class="voice">🎤 和我说话</button>
+        <button id="speakBtn" class="voice secondary">🔊 再听一次</button>
+      </div>
+
+      <div class="controls">
+        <input id="input" type="text" autocomplete="off" placeholder="也可以打字给我…" aria-label="输入消息" />
+        <button id="sendBtn" class="send">发送</button>
+      </div>
+      <div id="hint" class="hint">语音功能会根据手机浏览器支持情况自动开启。</div>
+    </section>
+
+    <div class="foot">这是 Daughter 的孩子端界面。AI 对话后端与 Guardian 安全层将继续接入；当前版本先建立语音输入、文字对话界面与本机语音朗读能力。</div>
   </main>
+
+  <script>
+    const messages = document.getElementById('messages');
+    const input = document.getElementById('input');
+    const sendBtn = document.getElementById('sendBtn');
+    const micBtn = document.getElementById('micBtn');
+    const speakBtn = document.getElementById('speakBtn');
+    const hint = document.getElementById('hint');
+    let lastAIText = '你好呀。今天想和我聊什么？';
+
+    function addMessage(text, who='user') {
+      const el = document.createElement('div');
+      el.className = `msg ${who}`;
+      el.textContent = text;
+      messages.appendChild(el);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    function speak(text) {
+      if (!('speechSynthesis' in window)) {
+        hint.textContent = '这个浏览器暂时不支持语音朗读。';
+        return;
+      }
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'zh-CN';
+      u.rate = 0.95;
+      speechSynthesis.speak(u);
+    }
+
+    function submitText() {
+      const text = input.value.trim();
+      if (!text) return;
+      addMessage(text, 'user');
+      input.value = '';
+      lastAIText = '我听到了。我的 AI 对话大脑还在接入中，很快就可以正式回答你。';
+      setTimeout(() => {
+        addMessage(lastAIText, 'ai');
+        speak(lastAIText);
+      }, 250);
+    }
+
+    sendBtn.addEventListener('click', submitText);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') submitText(); });
+    speakBtn.addEventListener('click', () => speak(lastAIText));
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const rec = new SpeechRecognition();
+      rec.lang = 'zh-CN';
+      rec.interimResults = false;
+      rec.continuous = false;
+
+      rec.onstart = () => {
+        micBtn.classList.add('listening');
+        micBtn.textContent = '● 正在听…';
+        hint.textContent = '说完后我会自动停止。';
+      };
+      rec.onend = () => {
+        micBtn.classList.remove('listening');
+        micBtn.textContent = '🎤 和我说话';
+      };
+      rec.onerror = () => {
+        hint.textContent = '麦克风没有成功开启，可以先用打字聊天。';
+      };
+      rec.onresult = event => {
+        const text = event.results[0][0].transcript;
+        input.value = text;
+        submitText();
+      };
+      micBtn.addEventListener('click', () => {
+        try { rec.start(); } catch(e) {}
+      });
+    } else {
+      micBtn.addEventListener('click', () => {
+        hint.textContent = '这个浏览器暂时不支持网页语音输入。可以先打字；语音朗读仍可使用。';
+      });
+    }
+  </script>
 </body>
 </html>
