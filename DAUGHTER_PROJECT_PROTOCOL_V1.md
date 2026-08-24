@@ -171,16 +171,15 @@ A daughter-project task is complete only when:
 - affected stable paths remain intact,
 - durable project state is updated only when useful for future continuation.
 
-## Initial Project State
+## Repository State
 
-Verified at protocol creation:
+Current verified state:
 - GitHub repository exists: `Xiao-E-26/daughter-companion-ai`
-- repository visibility: private
+- repository visibility: public
 - default branch: `main`
-- project repository was empty before this protocol was added
-- no dedicated daughter Supabase project has yet been identified
+- project repository contains active identity, policy, architecture, scope, and governance files
+- no dedicated daughter Supabase project is assumed unless separately verified
 - XiaoE Core remains separate and is not modified by this protocol
 
-## Next Bootstrap Step
-
-Create a compact `PROJECT_IDENTITY.md` defining the daughter's purpose, intended users, initial product goal, explicit non-goals, and first development milestone before adding application architecture or backend infrastructure.
+Historical bootstrap note:
+- the repository was empty before this protocol was first added.
