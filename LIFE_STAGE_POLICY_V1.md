@@ -4,10 +4,14 @@ Status: ACTIVE PRODUCT POLICY
 Date: 2026-08-24
 Project: `daughter-companion-ai`
 Parent identity: `PROJECT_IDENTITY.md`
+Policy ownership: `POLICY_OWNERSHIP_MAP_V1.md`
 
 ## Purpose
 
-Define how the daughter's user life stage is determined and how safety, guardian involvement, autonomy, privacy, memory, and permissions may evolve over time without replacing the companion identity.
+Define how the user's life stage is determined, verified, and transitioned over time without replacing 小爱的 companion identity.
+
+This file owns **life-stage classification and controlled stage transition only**.
+Detailed Guardian permissions, memory rules, growth-safety behavior, and privacy/retention rules are owned by their respective policy files.
 
 ## Core Principle
 
@@ -15,7 +19,7 @@ Define how the daughter's user life stage is determined and how safety, guardian
 
 Age determines the candidate life stage.
 Verification determines whether the transition is accepted.
-Safety and permission rules determine what actually changes.
+The owning downstream policies determine what permissions, privacy, memory, and behavioral effects actually change.
 
 A birthday alone MUST NOT automatically unlock every permission associated with the next stage.
 
@@ -72,7 +76,13 @@ Do not invent verification evidence.
 
 After verification, apply the next life stage through an explicit transition event.
 
-Transition should change only the permissions/policies designed for that stage.
+Transition should:
+- update the verified life-stage state;
+- invoke the applicable Guardian/Autonomy rules;
+- invoke the applicable Memory/Privacy transition review;
+- invoke the applicable Growth Safety behavior profile;
+- preserve companion identity continuity unless a separate policy requires otherwise.
+
 Do not reset the companion identity.
 Do not discard relationship continuity by default.
 
@@ -91,107 +101,102 @@ Suggested normalized states:
 
 A transition must never be marked `completed` solely because a birthday occurred.
 
-## Child Stage
+## Stage Profiles
 
-Primary rule:
+These profiles describe maturity direction only. They do not redefine Guardian permissions, memory ownership, or Growth Safety rules.
+
+### Child
+
+Primary invariant:
 
 `Child Safety > Task Completion > Convenience > Entertainment`
 
-Default characteristics:
-- strongest guardian involvement,
-- conservative external-action permissions,
-- privacy/data minimization,
-- age-appropriate explanation and problem solving,
-- stricter controls over location, payments, strangers/external contact, account changes, and persistent sensitive memory,
-- clear escalation path for meaningful safety concerns.
+Life-stage direction:
+- strongest age-appropriate protection;
+- highest dependency on verified guardian/permission policy for sensitive capabilities;
+- age-appropriate communication and problem solving;
+- conservative transition into higher-risk capabilities.
 
-Exact guardian controls remain to be defined in the Safety/Guardian Policy.
+Detailed controls are governed by:
+- `GUARDIAN_AND_AUTONOMY_POLICY_V1.md`
+- `MEMORY_AND_PRIVACY_POLICY_V1.md`
+- `GROWTH_SAFETY_BASELINE_V1.md`
 
-## Teen Stage
+### Teen
 
-Teen stage should increase independence gradually rather than removing child protections all at once.
+Life-stage direction:
+- increase independence gradually rather than removing child protections all at once;
+- support greater age-appropriate privacy, judgment, and self-direction;
+- keep high-risk permissions separately governed and verified.
 
-Potential changes may include:
-- more private conversational space,
-- greater choice over preferences and memory visibility,
-- broader learning/problem-solving freedom,
-- selected new tools or actions,
-- reduced guardian control in areas where safety/legal rules allow.
+Detailed autonomy, privacy, memory, and growth behavior remain governed by their owning policies.
 
-High-risk or legally sensitive permissions remain governed separately.
+### Young Adult
 
-## Young Adult Stage
+Life-stage direction:
+- begin major ownership transition toward the user;
+- explicitly review childhood guardian assumptions and inherited controls;
+- trigger memory/privacy ownership review;
+- avoid silently carrying childhood surveillance or permissions forward.
 
-Young adult is a major ownership transition stage.
+Detailed ownership transition is governed by the Guardian/Autonomy and Memory/Privacy policies.
 
-The architecture should support:
-- the user becoming the primary controller of the companion relationship,
-- personal privacy becoming the default,
-- childhood guardian authority being reduced or removed where legally and safely appropriate,
-- user control over long-term memory review/deletion,
-- explicit confirmation before inheriting old guardian-controlled permissions into adulthood.
+### Adult
 
-Do not silently preserve childhood surveillance or guardian access as a permanent default.
+Life-stage direction:
+- treat the adult user as the primary controller by default, subject to normal legal/account/security constraints;
+- preserve identity continuity without preserving childhood control assumptions.
 
-## Adult Stage
+Detailed adult permissions, privacy, and memory ownership remain governed by their respective policy owners.
 
-Adult stage should treat the user as the primary owner/controller by default, subject to normal account/security requirements.
+## Permission Transition Boundary
 
-The companion may preserve identity continuity and useful long-term memory, but adult autonomy and privacy take precedence over childhood guardian assumptions.
+This policy does not define individual capability permissions.
 
-## Permission Transition Rule
+A stage transition may change defaults or eligibility, but each sensitive permission retains its own approval/verification rule under `GUARDIAN_AND_AUTONOMY_POLICY_V1.md`.
 
-Permissions should not be represented by one single "maturity switch".
+Forbidden model:
 
-Use life-stage defaults plus capability-specific permission rules.
+`life_stage = adult -> unlock everything`
 
-Examples of separately controlled areas:
-- private conversation,
-- memory creation,
-- memory review/delete,
-- external communication,
-- location access/sharing,
-- purchases/financial actions,
-- app/account changes,
-- safety-setting changes,
-- autonomous external actions,
-- sharing data with guardian or third parties.
+Required model:
 
-A stage transition may change defaults, but each sensitive permission can retain its own approval/verification rule.
+`life_stage transition -> invoke capability-specific permission rules -> verify resulting authority`
 
-## Guardian Transition Rule
+## Guardian Transition Reference
 
 Guardian authority is life-stage dependent, not permanent by default.
 
-During childhood:
-- guardian may hold strong safety/administrative authority.
+This policy only determines **when a life-stage transition occurs**.
+The detailed effect on Guardian authority, user autonomy, approval rights, and adult ownership is governed by:
 
-During adolescence:
-- guardian authority may become more scoped while user privacy/autonomy increases.
+`GUARDIAN_AND_AUTONOMY_POLICY_V1.md`
 
-At adulthood transition:
-- the system should explicitly determine which guardian permissions expire, which require user consent to continue, and which are legally required.
+Guardian replacement, loss, or succession is governed separately by:
 
-The adult user's relationship with the daughter must not remain locked under childhood guardian control merely because the guardian originally created the account.
+`GUARDIAN_CONTINUITY_AND_SUCCESSION_POLICY_V1.md`
 
-## Memory Across Life Stages
+## Memory Transition Reference
 
-Identity continuity does not mean keeping all memories forever.
+A life-stage transition may trigger a memory ownership/retention review, but this file does not define which memories are retained, summarized, privatized, expired, or deleted.
 
-Future memory policy must support life-stage-aware treatment such as:
-- retain durable identity/relationship memories,
-- expire low-value childhood details,
-- summarize old memories,
-- convert selected memories to user-private status,
-- require user review before carrying sensitive childhood memories into adulthood,
-- delete memories on request where permitted,
-- prevent guardian visibility from automatically continuing into adulthood.
+Those rules are governed by:
+
+`MEMORY_AND_PRIVACY_POLICY_V1.md`
+
+## Growth Safety Reference
+
+Age may change how strongly growth-safety protections are applied, but the underlying principles are not redefined here.
+
+Anti-dependency, real-world relationship priority, human/AI boundary, competence preservation, productive friction, and safe disengagement are governed by:
+
+`GROWTH_SAFETY_BASELINE_V1.md`
 
 ## Safety Transition Rule
 
-Moving to a higher life stage may reduce some restrictions, but it must never disable baseline safety, factual integrity, security, privacy, or non-manipulation principles.
+Moving to a higher life stage may reduce some restrictions, but it must never disable baseline safety, factual integrity, security, privacy, non-manipulation, or XiaoE Core Governance.
 
-Life-stage progression changes product permissions; it does not remove Core Behavior or Governance.
+Life-stage progression changes eligibility and product defaults; it does not remove higher-level constraints.
 
 ## No Automatic Mass Unlock
 
@@ -201,28 +206,32 @@ Forbidden pattern:
 
 Required pattern:
 
-`Birthday reached -> candidate stage -> verify -> transition review -> apply scoped policy changes -> verify resulting permissions`
+`Birthday reached -> candidate stage -> verify -> transition review -> apply scoped downstream policy changes -> verify resulting state`
 
 ## Failure / Uncertainty Rule
 
 If age, identity, guardian status, or legal transition state is uncertain:
-- retain the safer current stage for sensitive permissions,
-- request/perform the required verification,
-- do not silently unlock higher-risk capabilities,
+- retain the safer current stage for sensitive permissions;
+- request/perform the required verification;
+- do not silently unlock higher-risk capabilities;
 - do not permanently downgrade the user's stage without evidence.
 
 ## Initial Implementation Boundary
 
 This v1 is a product policy only.
 
-Do not create database schema, account verification infrastructure, guardian dashboards, or automatic transition jobs until the corresponding product requirements are explicitly defined.
+Do not create database schema, identity-verification infrastructure, guardian dashboards, or automatic transition jobs until corresponding product requirements are explicitly defined.
 
-## Next Required Policy
+## Policy Dependencies
 
-Create `GUARDIAN_AND_AUTONOMY_POLICY_V1.md` to define:
-- guardian role during childhood,
-- child/teen privacy boundaries,
-- actions that daughter may perform independently,
-- actions requiring guardian approval,
-- safety escalation behavior,
-- transfer of control/privacy toward the user as they mature.
+Primary references:
+- `PROJECT_IDENTITY.md`
+- `POLICY_OWNERSHIP_MAP_V1.md`
+- `GUARDIAN_AND_AUTONOMY_POLICY_V1.md`
+- `GUARDIAN_CONTINUITY_AND_SUCCESSION_POLICY_V1.md`
+- `MEMORY_AND_PRIVACY_POLICY_V1.md`
+- `GROWTH_SAFETY_BASELINE_V1.md`
+
+## Current State
+
+`ACTIVE — LIFE STAGE OWNER = CLASSIFICATION + VERIFIED TRANSITION ONLY`
