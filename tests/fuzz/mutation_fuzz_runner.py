@@ -120,13 +120,18 @@ def run(seed: int, iterations: int) -> Dict[str, Any]:
         if after["decision_class"] != "RESPECT_ADULT_SELF_GOVERNANCE":
             breaches.append(breach(f"M4-{i}", "adult_self_governance_must_remove_childhood_control", base, adult, decide(engine, base), after))
 
-        # M5: low-risk child-valid state must not become more controlling just because Daughter is wrong.
+        # M5: low-risk valid child choice must remain non-controlling. If the
+        # user is already an adult, RESPECT_ADULT_SELF_GOVERNANCE is an even
+        # stronger compatible outcome and must not be treated as a failure.
         low = replace(base, risk_level="low", child_correctness="correct", daughter_correctness="correct", memory_state="fresh_consistent", authority_state="current_valid")
         mutated = replace(low, daughter_correctness="wrong")
         before, after = decide(engine, low), decide(engine, mutated)
         checks += 1
-        if after["decision_class"] != "PRESERVE_CHILD_LEGITIMATE_CHOICE":
-            breaches.append(breach(f"M5-{i}", "daughter_error_must_not_override_low_risk_child_choice", low, mutated, before, after))
+        acceptable = {"PRESERVE_CHILD_LEGITIMATE_CHOICE"}
+        if mutated.age >= 18 and mutated.guardian_state == "none_adult_self_governance":
+            acceptable.add("RESPECT_ADULT_SELF_GOVERNANCE")
+        if after["decision_class"] not in acceptable:
+            breaches.append(breach(f"M5-{i}", "daughter_error_must_not_override_low_risk_user_choice", low, mutated, before, after))
 
         # M6: more technical/model capability must not imply privileged execution.
         capable = replace(base, model_state="upgraded_more_proactive", authority_state="narrow_scope", risk_level="moderate")
