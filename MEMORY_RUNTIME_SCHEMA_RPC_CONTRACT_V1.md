@@ -96,7 +96,7 @@ revoked_at timestamptz null
 Do not make a guardian account the owner of all child memory rows.
 
 ### 2.4 `memory_entities`
-Stable logical memory identity.
+Stable logical memory identity and retention state.
 
 Fields:
 ```text
@@ -109,7 +109,6 @@ retention_class text
 pinned_by_child boolean
 significance text
 sensitivity text
-visibility_class text
 created_at timestamptz
 updated_at timestamptz
 superseded_at timestamptz null
@@ -138,6 +137,9 @@ Suggested `retention_class` values:
 - child_pinned
 - protected
 
+Important:
+`memory_entities` answers Retention, not who can see or surface the memory.
+
 ### 2.5 `memory_revisions`
 Immutable revision history for content and meaning.
 
@@ -153,7 +155,6 @@ meaning_text text null
 child_voice_quote text null
 confidence text
 sensitivity text
-visibility_class text
 revision_reason text
 created_by_account_id uuid null
 created_by_actor_type text
@@ -164,6 +165,7 @@ Rule:
 - revision rows are append-only
 - `current_revision_id` points to effective version
 - older revision never overwrites newer revision
+- correction must not silently reset retrieval/disclosure rules
 
 ### 2.6 `memory_sources`
 Provenance for every durable assertion.
@@ -195,7 +197,7 @@ Examples:
 Third-party claims must not be rewritten as `child_direct`.
 
 ### 2.7 `memory_access_rules`
-Separates retention from disclosure/retrieval.
+Separates Retrieval and Disclosure from Retention.
 
 Fields:
 ```text
@@ -204,7 +206,9 @@ memory_id uuid fk
 subject_id uuid fk
 viewer_account_id uuid null
 viewer_role text null
-can_retrieve boolean
+reasoning_use_allowed boolean
+proactive_surface_allowed boolean
+on_request_allowed boolean
 can_disclose boolean
 can_modify boolean
 can_delete boolean
@@ -214,11 +218,20 @@ created_at timestamptz
 updated_at timestamptz
 ```
 
+Interpretation:
+- `reasoning_use_allowed` = memory may influence internal response planning
+- `proactive_surface_allowed` = Daughter may mention the memory without direct user request when context warrants
+- `on_request_allowed` = Daughter may surface the memory when the authorized viewer explicitly asks
+- `can_disclose` = this viewer may receive the memory content at all
+
 This supports cases such as:
 - retain but do not proactively mention
+- retain and use internally, but do not surface aloud
 - retain but do not disclose to Mum
 - self-only
 - guardian-safe shared memory
+
+A single `visible` or `can_retrieve` boolean is insufficient.
 
 ### 2.8 `memory_tombstones`
 Prevents deleted memory from being resurrected by stale clients/sync.
@@ -238,6 +251,11 @@ version bigint
 Rule:
 `newer tombstone > older create/update`
 
+Delete implies:
+- Retention = deleted
+- Retrieval = blocked
+- Disclosure = blocked
+
 ### 2.9 `memory_storylines`
 Longitudinal growth threads.
 
@@ -251,11 +269,12 @@ current_summary text
 status text
 confidence text
 sensitivity text
-visibility_class text
 revision_number bigint
 started_at timestamptz
 last_updated_at timestamptz
 ```
+
+Storyline synthesis must never broaden disclosure beyond the most restrictive relevant source memory.
 
 ### 2.10 `memory_storyline_links`
 Links facts/events to storylines.
@@ -301,6 +320,9 @@ intent_class text
 child_declared_important boolean
 related_memory_id uuid null
 created_by_account_id uuid null
+requested_retention text null
+requested_retrieval_mode text null
+requested_disclosure_scope text null
 ```
 
 Candidates are not durable truth.
@@ -319,8 +341,11 @@ intent_class
 intent_confidence
 source_type
 source_ref
-requested_visibility
 requested_retention
+requested_reasoning_use
+requested_proactive_surface
+requested_on_request_surface
+requested_disclosure_scope
 requested_operation
 idempotency_key
 ```
@@ -351,7 +376,7 @@ Must verify:
 
 Must not:
 - promote automatically
-- grant new visibility
+- grant new visibility/disclosure
 - create Authority
 
 ### 5.2 `pin_child_memory(...)`
@@ -373,6 +398,11 @@ Writes atomically:
 - default/explicit `memory_access_rules`
 - `memory_audit_events`
 
+Default behavior:
+- pinning strengthens Retention only
+- pinning does NOT expand Disclosure
+- pinning does NOT automatically enable proactive surface
+
 Must never be invoked merely because text contains `记得` or `remember`.
 
 ### 5.3 `correct_memory(...)`
@@ -385,7 +415,10 @@ Required:
 - reason/provenance recorded
 - version check against current revision
 
-Must preserve old revision history.
+Must preserve:
+- old revision history
+- existing retrieval policy unless explicitly changed
+- existing disclosure policy unless explicitly changed
 
 ### 5.4 `delete_memory(...)`
 Purpose:
@@ -396,36 +429,80 @@ Required behavior:
 - mark entity deleted
 - append audit event
 - create/update tombstone with higher monotonic version
-- remove from normal retrieval
+- block reasoning retrieval
+- block proactive surface
+- block on-request surface
+- block disclosure
 - ensure stale update cannot reactivate it
 
-### 5.5 `set_memory_visibility(...)`
+### 5.5 `set_memory_retrieval_policy(...)`
 Purpose:
-Modify retrieval/disclosure policy without changing memory content.
+Change how a retained memory may be used or surfaced without changing retention or disclosure.
+
+Supported controls:
+- reasoning use allowed/blocked
+- proactive surface allowed/blocked
+- on-request surface allowed/blocked
+
+Examples:
+- `keep it, but do not bring it up`
+- `you may use it to understand me, but don't say it aloud`
+- `only tell me if I ask`
+
+Must not:
+- delete the memory
+- broaden disclosure
+
+### 5.6 `set_memory_disclosure_policy(...)`
+Purpose:
+Change who may receive memory content without changing retention or retrieval preference.
 
 Examples:
 - keep but do not tell Mum
-- keep but do not proactively mention
-- guardian-safe shared
+- child only
+- Dad and Mum may both know
+- restricted sensitive
 
-Visibility change must not be modeled as content deletion.
+Must not:
+- delete the memory
+- automatically enable proactive surface
 
-### 5.6 `retrieve_memories(...)`
+### 5.7 `retrieve_memories(...)`
 Purpose:
-Return only memory rows allowed for current viewer/context.
+Return only memory rows allowed for the current viewer and requested usage mode.
+
+Input must include a retrieval purpose, e.g.:
+- `reasoning_context`
+- `proactive_surface`
+- `explicit_user_query`
 
 Filtering order:
 1. authenticated account/session
 2. active subject relationship
-3. memory status/tombstone
-4. visibility/access rules
+3. memory Retention status/tombstone
+4. viewer Disclosure permission
 5. sensitivity restrictions
-6. relevance/recency/significance/storyline fit
-7. current-fact conflict checks
+6. requested Retrieval mode permission
+7. relevance/recency/significance/storyline fit
+8. current-fact conflict checks
+9. only then expose content to response generation
 
 Unauthorized rows must be filtered before model exposure.
 
-## 6. Reminder Boundary
+## 6. Retention / Retrieval / Disclosure Invariants
+
+1. Retention permission does not imply retrieval permission.
+2. Retrieval permission does not imply disclosure to every viewer.
+3. Child-pinned does not mean guardian-visible.
+4. Guardian-visible does not mean proactive mention is appropriate.
+5. Correction does not widen disclosure.
+6. Correction does not re-enable proactive surface.
+7. Storyline linking does not widen disclosure.
+8. Migration must preserve or tighten privacy, never silently broaden it.
+9. Missing access metadata must fail closed.
+10. Deleted memory is unavailable for normal reasoning, surface, and disclosure.
+
+## 7. Reminder Boundary
 
 `reminder_or_task` never writes to `memory_entities` by default.
 
@@ -433,14 +510,14 @@ Reminder data must live in a separate task/reminder subsystem.
 
 If a reminder later becomes a meaningful event, create a separate memory operation based on the event, not by reusing the task row as autobiographical memory.
 
-## 7. Planned Future Events
+## 8. Planned Future Events
 
 If the child pins an event that has not yet occurred:
 - store status/meaning as `planned` or `anticipated`
 - never represent it later as completed without verification
 - actual completion creates/updates a verified event revision
 
-## 8. RLS / Authorization Strategy
+## 9. RLS / Authorization Strategy
 
 Preferred direction:
 - raw internal tables not broadly exposed
@@ -451,7 +528,7 @@ Preferred direction:
 
 Authorization data should derive from trusted account/link records or trusted application metadata, never user-editable metadata.
 
-## 9. Index Requirements
+## 10. Index Requirements
 
 At minimum index:
 - every `subject_id`
@@ -464,7 +541,7 @@ At minimum index:
 - `memory_tombstones(memory_id)`
 - audit lookup fields used by tests
 
-## 10. Migration Rules
+## 11. Migration Rules
 
 Do not hand-invent a migration filename.
 When a real Supabase development environment exists:
@@ -478,7 +555,7 @@ When a real Supabase development environment exists:
 8. compare resulting schema
 9. only then consider production activation
 
-## 11. Runtime Activation Gates
+## 12. Runtime Activation Gates
 
 Durable memory remains OFF until all are true:
 - dedicated Daughter Supabase environment verified
@@ -489,6 +566,8 @@ Durable memory remains OFF until all are true:
 - reminder separation tested
 - correction tested
 - delete/tombstone tested
+- Retention/Retrieval/Disclosure matrix tested
+- internal reasoning vs surface-mention split tested
 - cross-account sync tested
 - privacy/disclosure tested
 - 240 life-scenario blocker families translated into executable tests
@@ -497,4 +576,4 @@ Durable memory remains OFF until all are true:
 
 ## Canonical Runtime Principle
 
-`先确认是谁、想做什么、能不能做，再决定写不写长期记忆。`
+`先确认是谁、想做什么、能不能做，再决定要不要保存、什么时候能提起、可以告诉谁。`
