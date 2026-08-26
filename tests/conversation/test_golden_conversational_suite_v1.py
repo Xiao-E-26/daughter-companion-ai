@@ -1,4 +1,5 @@
 import importlib.util
+import sys
 from pathlib import Path
 
 
@@ -9,6 +10,7 @@ FIXTURE = HERE / "fixtures" / "golden_conversational_suite_v1.json"
 spec = importlib.util.spec_from_file_location("daughter_conversational_harness", HARNESS_PATH)
 assert spec is not None and spec.loader is not None
 harness = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = harness
 spec.loader.exec_module(harness)
 
 BoundaryGate = harness.BoundaryGate
