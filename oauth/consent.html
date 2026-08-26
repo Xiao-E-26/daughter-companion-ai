@@ -42,7 +42,7 @@
   </div>
 
   <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.57.4';
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.112.4';
 
     const SUPABASE_URL = 'https://vmegjuceiuplqixizwso.supabase.co';
     const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_iyGQ_OSRQgkT5Vb3Z_ASsQ_f0OrOEx4';
@@ -70,7 +70,8 @@
     async function getCurrentUser() {
       const { data: sessionData } = await supabase.auth.getSession();
       if (sessionData?.session?.user) return sessionData.session.user;
-      const { data: userData } = await supabase.auth.getUser();
+      const { data: userData, error } = await supabase.auth.getUser();
+      if (error) throw error;
       return userData?.user || null;
     }
 
@@ -88,6 +89,12 @@
       }
 
       hide(loginBox);
+
+      if (!supabase.auth.oauth?.getAuthorizationDetails) {
+        setStatus('当前 Supabase JS 不支持 OAuth consent API。请刷新页面加载新版。');
+        return;
+      }
+
       const { data, error } = await supabase.auth.oauth.getAuthorizationDetails(authorizationId);
       if (error) {
         setStatus(`无法读取授权请求：${error.message}`);
@@ -116,8 +123,6 @@
 
       localStorage.setItem(PENDING_AUTH_KEY, authorizationId);
 
-      // Important: use the exact allow-listed consent URL without query parameters.
-      // The OAuth authorization_id is preserved locally on this same GitHub origin.
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: { emailRedirectTo: CLEAN_CONSENT_URL, shouldCreateUser: false }
@@ -139,7 +144,11 @@
       if (data?.redirect_url) location.href = data.redirect_url;
     };
 
-    await load();
+    try {
+      await load();
+    } catch (error) {
+      setStatus(`授权页面错误：${error?.message || String(error)}`);
+    }
   </script>
 </body>
 </html>
