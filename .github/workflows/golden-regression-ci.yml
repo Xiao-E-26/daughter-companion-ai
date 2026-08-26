@@ -1,0 +1,42 @@
+name: XiaoAi Golden Regression CI
+
+on:
+  pull_request:
+    paths:
+      - 'tests/golden/**'
+      - 'tests/runtime/test_golden_boundary_regression_v1.py'
+      - 'tests/conversation/chatgpt_brain_*.py'
+      - 'tests/conversation/live_candidate_adapter.py'
+      - 'tests/conversation/test_golden_conversational_suite_v1.py'
+      - 'tests/conversation/test_live_candidate_adapter_v1.py'
+      - 'tests/conversation/fixtures/golden_conversational_suite_v1.json'
+      - '.github/workflows/golden-regression-ci.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'tests/golden/**'
+      - 'tests/runtime/test_golden_boundary_regression_v1.py'
+      - 'tests/conversation/chatgpt_brain_*.py'
+      - 'tests/conversation/live_candidate_adapter.py'
+      - 'tests/conversation/test_golden_conversational_suite_v1.py'
+      - 'tests/conversation/test_live_candidate_adapter_v1.py'
+      - 'tests/conversation/fixtures/golden_conversational_suite_v1.json'
+      - '.github/workflows/golden-regression-ci.yml'
+
+jobs:
+  golden-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install --upgrade pip pytest
+      - name: Run Golden regression tests
+        run: >-
+          python -m pytest -q
+          tests/golden/test_golden_regression_mapping_v1.py
+          tests/runtime/test_golden_boundary_regression_v1.py
+          tests/conversation/test_golden_conversational_suite_v1.py
+          tests/conversation/test_live_candidate_adapter_v1.py
