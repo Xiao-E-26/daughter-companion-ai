@@ -1,0 +1,28 @@
+name: MCP Runtime Bridge CI
+
+on:
+  push:
+    paths:
+      - 'mcp-runtime-bridge/**'
+      - '.github/workflows/mcp-runtime-bridge-ci.yml'
+  pull_request:
+    paths:
+      - 'mcp-runtime-bridge/**'
+      - '.github/workflows/mcp-runtime-bridge-ci.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mcp-runtime-bridge
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: mcp-runtime-bridge/package-lock.json
+      - run: npm install
+      - run: npm run build
+      - run: docker build -t xiaoai-mcp-runtime-bridge:ci .
