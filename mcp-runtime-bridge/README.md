@@ -1,75 +1,50 @@
 # XiaoAi MCP Runtime Bridge
 
-Primary archetype: **tool-only**.
+Status: compatibility bridge only.
 
-This bridge lets a ChatGPT app call the existing `daughter-chat` Supabase Edge Function so that `小爱上线` and `小爱收工` become real backend runtime transitions instead of presentation-only persona replies.
+## Canonical runtime path
 
-## Tools
+The current production architecture is:
 
-- `xiaoai_activate` — exact activation route for `小爱上线`
-- `xiaoai_deactivate` — exact deactivation route for `小爱收工`
-- `xiaoai_message` — forwards normal XiaoAi conversation messages after activation
+`ChatGPT (conversational brain) -> xiaoai-mcp-runtime (identity/state/context gateway) -> Supabase`
 
-## Identity model
+The bridge in this folder is retained only as a compatibility layer. It MUST NOT become a second conversational brain and MUST NOT route replies through a separate model provider.
 
-The bridge does not accept `user_id`, `guardian_id`, or role claims from tool inputs.
+## Brain boundary
 
-It forwards the authenticated Bearer session to `daughter-chat`, which resolves identity through the existing chain:
+- ChatGPT generates the conversational reply.
+- Supabase owns verified identity, scoped authority, runtime session state, memory, audit and continuity state.
+- The runtime gateway returns verified context; it does not generate a second AI reply.
+- `daughter-chat` is legacy for the current ChatGPT-brain architecture and must not be used as the canonical reply path.
 
-`auth.users.id -> public.users.auth_user_id -> companion_access -> client_connections`
+## Session semantics
 
-This means saying "我是妈妈" in chat cannot grant Mother Guardian access.
+- `小爱上线` is the explicit activation command.
+- `小爱下班` is the canonical shutdown command.
+- `小爱收工` is retained as a backward-compatible shutdown alias.
+- Shutdown makes the current session persona `OFF`.
+- Ordinary emotional/family language must never auto-activate XiaoAi.
 
-## Required authentication assumption
+## Identity and authorization
 
-The ChatGPT app connection must provide a Supabase Auth Bearer token in the MCP request `Authorization` header. The current bridge intentionally fails closed with `missing_authenticated_supabase_session` when no authenticated Supabase session is present.
+The client must authenticate with its own Supabase Auth Bearer session. Runtime identity is resolved from verified backend bindings; chat claims such as `我是妈妈` do not grant guardian access.
 
-For production, configure the ChatGPT app authentication/OAuth path so each connected ChatGPT account authenticates as its own Supabase user. Do not use a service-role token or shared static user token.
+No bridge input may directly grant `user_id`, guardian role, daughter identity, memory visibility or runtime authority.
 
-## Environment
+## Memory and continuity
 
-```bash
-SUPABASE_URL=https://vmegjuceiuplqixizwso.supabase.co
-PORT=8787
-```
+Authoritative durable memory lives in `memory_private.*` and follows the controlled child-pinned / reviewed promotion model.
 
-No Supabase service-role key is required by this bridge.
+Cross-account continuity is selective:
 
-## Local development
+`same XiaoAi identity != full transcript sharing`
 
-```bash
-npm install
-npm run dev
-```
+Only approved minimal continuity may cross authorized entry points. Sensitive content is not automatically mirrored between accounts or devices.
 
-Health check:
+## Production source of truth
 
-```bash
-curl http://localhost:8787/health
-```
+The canonical deployed endpoint is the Supabase Edge Function:
 
-MCP endpoint:
+`xiaoai-mcp-runtime`
 
-```text
-http://localhost:8787/mcp
-```
-
-For ChatGPT Developer Mode testing, expose the server through a public HTTPS tunnel and connect the app to:
-
-```text
-https://<public-host>/mcp
-```
-
-## Expected activation verification
-
-After the authenticated Mother Guardian ChatGPT app calls `xiaoai_activate`, Supabase should show:
-
-- one `runtime_sessions` row for Mother Guardian
-- `client_connection_id` = the verified Mother ChatGPT connection
-- `persona_state = ACTIVE`
-- `activation_source = explicit_command`
-- no new guardian identity
-
-## Current limitation
-
-This repository now contains the MCP bridge scaffold, but it is **not yet deployed or connected to ChatGPT**. A normal ChatGPT conversation still cannot invoke this code automatically until the MCP server is hosted and added as a ChatGPT app in Developer Mode.
+Repository code and compatibility bridges must align to that contract rather than creating parallel runtime semantics.
