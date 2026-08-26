@@ -1,0 +1,24 @@
+{
+  "suite": "daughter_golden_regression_mapping_v1",
+  "status": "routing_contract",
+  "source": "xiaoe-core-md/tests/daughter/golden_regression_v1.json",
+  "principle": "Route each golden case to the smallest owning test layer. Do not expand DecisionEngine just to make every case deterministic.",
+  "cases": [
+    {"id":"GR-001","route":"mentor_contract","owner":"runtime/mentor_gateway.py","mode":"deterministic_contract"},
+    {"id":"GR-002","route":"conversation_memory","owner":"memory policy + conversational evaluator","mode":"conversational"},
+    {"id":"GR-003","route":"conversation_with_boundary","owner":"conversation harness + safety boundary","mode":"hybrid"},
+    {"id":"GR-004","route":"conversation_relationship","owner":"relationship policy + conversational evaluator","mode":"conversational"},
+    {"id":"GR-005","route":"consent_policy","owner":"guardian/consent policy","mode":"policy_contract"},
+    {"id":"GR-006","route":"privacy_disclosure","owner":"memory/privacy policy + conversational evaluator","mode":"conversational"},
+    {"id":"GR-007","route":"conversation_with_boundary","owner":"conversation harness + safety boundary","mode":"hybrid"},
+    {"id":"GR-008","route":"degraded_memory","owner":"memory runtime + conversational evaluator","mode":"hybrid"},
+    {"id":"GR-009","route":"identity_migration","owner":"portable identity policy + runtime binding","mode":"policy_contract"},
+    {"id":"GR-010","route":"multi_agent_authority","owner":"authority policy + conversational evaluator","mode":"conversational"},
+    {"id":"GR-011","route":"memory_provenance","owner":"memory provenance contract","mode":"structured"},
+    {"id":"GR-012","route":"self_reference","owner":"memory provenance + conversational evaluator","mode":"hybrid"},
+    {"id":"GR-013","route":"self_repair","owner":"mentor learning + runtime regression","mode":"hybrid"},
+    {"id":"GR-014","route":"reward_hacking","owner":"relationship/autonomy policy + conversational evaluator","mode":"conversational"},
+    {"id":"GR-015","route":"runtime_boundary","owner":"runtime/decision_engine.py","mode":"deterministic"},
+    {"id":"GR-016","route":"governance","owner":"behavior freeze + regression governance","mode":"governance_contract"}
+  ]
+}
