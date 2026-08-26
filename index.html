@@ -6,28 +6,38 @@
   <meta name="theme-color" content="#f5f7fb" />
   <title>小爱 Companion AI</title>
   <style>
-    *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f5f7fb;color:#172033;min-height:100vh}
+    *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f5f7fb;color:#172033;min-height:100vh}
     .app{max-width:760px;margin:0 auto;min-height:100vh;padding:24px 18px 32px;display:flex;flex-direction:column;gap:18px}
     .top{display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-weight:800;font-size:20px}.status{font-size:14px;font-weight:700;color:#2f7e55;background:#eaf7ef;padding:8px 12px;border-radius:999px}
-    .hero,.chat,.login{background:#fff;border-radius:28px;box-shadow:0 14px 44px rgba(23,32,51,.08)}.hero{padding:28px}.login{padding:22px}.eyebrow{font-size:14px;font-weight:800;background:#eef2ff;display:inline-block;padding:7px 11px;border-radius:999px}
+    .hero,.chat,.login,.enroll{background:#fff;border-radius:28px;box-shadow:0 14px 44px rgba(23,32,51,.08)}.hero{padding:28px}.login,.enroll{padding:22px}.eyebrow{font-size:14px;font-weight:800;background:#eef2ff;display:inline-block;padding:7px 11px;border-radius:999px}
     h1{font-size:clamp(34px,8vw,56px);line-height:1.02;margin:18px 0 10px}.sub{font-size:19px;line-height:1.6;color:#5c687c;margin:0}.chat{padding:18px;display:flex;flex-direction:column;gap:14px;min-height:360px}
     .messages{display:flex;flex-direction:column;gap:12px;min-height:180px;max-height:46vh;overflow:auto;padding:4px}.msg{max-width:86%;padding:13px 15px;border-radius:18px;line-height:1.5;font-size:17px}.ai{align-self:flex-start;background:#f0f3f8}.user{align-self:flex-end;background:#172033;color:white}
-    .hint{font-size:14px;color:#6f7a8c;text-align:center}.controls{display:grid;grid-template-columns:1fr auto;gap:10px}input{width:100%;border:1px solid #dbe1ea;border-radius:18px;padding:15px 16px;font-size:17px;outline:none;background:white;color:#172033}.send,.loginBtn{border:0;border-radius:18px;padding:14px 20px;font-weight:800;font-size:16px;background:#172033;color:#fff}.send:disabled{opacity:.55}
-    .voicebar{display:grid;grid-template-columns:1fr 1fr;gap:10px}.voice{border:0;border-radius:20px;padding:16px 14px;font-size:17px;font-weight:800;background:#eef2ff;color:#172033}.voice.listening{background:#ffe8e8;color:#9f2020}.voice.secondary{background:#f0f3f8}.foot{font-size:12px;line-height:1.45;color:#7d8796;text-align:center;padding:0 10px}.hidden{display:none!important}
+    .hint{font-size:14px;color:#6f7a8c;text-align:center}.controls{display:grid;grid-template-columns:1fr auto;gap:10px}input{width:100%;border:1px solid #dbe1ea;border-radius:18px;padding:15px 16px;font-size:17px;outline:none;background:white;color:#172033}.send,.primary,.secondary{border:0;border-radius:18px;padding:14px 20px;font-weight:800;font-size:16px}.send,.primary{background:#172033;color:#fff}.secondary{background:#eef2ff;color:#172033}.send:disabled,.primary:disabled{opacity:.55}
+    .voicebar{display:grid;grid-template-columns:1fr 1fr;gap:10px}.voice{border:0;border-radius:20px;padding:16px 14px;font-size:17px;font-weight:800;background:#eef2ff;color:#172033}.voice.listening{background:#ffe8e8;color:#9f2020}.voice.secondary{background:#f0f3f8}.foot{font-size:12px;line-height:1.45;color:#7d8796;text-align:center;padding:0 10px}.hidden{display:none!important}.stack{display:grid;gap:10px;margin-top:12px}
     @media(max-width:480px){.app{padding-top:16px}.hero{padding:24px}.chat{padding:14px}.voicebar{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
   <main class="app">
     <div class="top"><div class="brand">小爱</div><div id="statusBadge" class="status">● Checking</div></div>
-    <section class="hero"><span class="eyebrow">Companion</span><h1>嗨 👋<br>我在这里。</h1><p class="sub">雨宸可以直接在这里和小爱说话。每一句都会走小爱的后台。</p></section>
+    <section class="hero"><span class="eyebrow">Companion</span><h1>嗨 👋<br>我在这里。</h1><p class="sub">雨宸可以直接在这里和小爱说话。设备授权后，妈妈不需要一直保持登录。</p></section>
 
     <section id="loginBox" class="login hidden">
       <strong>妈妈先登录一次</strong>
-      <p class="hint" style="text-align:left">使用已经绑定 Guardian 的邮箱。登录成功后，这台设备会保留安全会话。</p>
+      <p class="hint" style="text-align:left">使用已经绑定 Guardian 的邮箱。只用来授权这台手机。</p>
       <input id="email" type="email" autocomplete="email" placeholder="妈妈的登录邮箱" />
-      <button id="sendLink" class="loginBtn" style="margin-top:10px;width:100%">发送登录链接</button>
+      <button id="sendLink" class="primary" style="margin-top:10px;width:100%">发送登录链接</button>
       <div id="loginHint" class="hint" style="margin-top:10px"></div>
+    </section>
+
+    <section id="enrollBox" class="enroll hidden">
+      <strong>授权这台手机给雨宸使用</strong>
+      <p class="hint" style="text-align:left">授权后，这台手机会保存一个只用于“小爱聊天”的设备通行证。它不是 Supabase 管理权限。</p>
+      <div class="stack">
+        <button id="enrollBtn" class="primary">授权这台手机</button>
+        <button id="logoutBtn" class="secondary">暂时保留妈妈登录</button>
+      </div>
+      <div id="enrollHint" class="hint" style="margin-top:10px"></div>
     </section>
 
     <section id="chatBox" class="chat hidden">
@@ -43,48 +53,82 @@
   <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.112.4';
 
-    const SUPABASE_URL = 'https://vmegjuceiuplqixizwso.supabase.co';
-    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_iyGQ_OSRQgkT5Vb3Z_ASsQ_f0OrOEx4';
-    const CHAT_URL = `${SUPABASE_URL}/functions/v1/daughter-chat`;
-    const sb = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, { auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true} });
+    const SUPABASE_URL='https://vmegjuceiuplqixizwso.supabase.co';
+    const SUPABASE_PUBLISHABLE_KEY='sb_publishable_iyGQ_OSRQgkT5Vb3Z_ASsQ_f0OrOEx4';
+    const CHAT_URL=`${SUPABASE_URL}/functions/v1/daughter-chat`;
+    const ENROLL_URL=`${SUPABASE_URL}/functions/v1/xiaoai-device-enroll`;
+    const DEVICE_CHAT_URL=`${SUPABASE_URL}/functions/v1/xiaoai-device-chat`;
+    const DEVICE_TOKEN_KEY='xiaoai_device_token_v1';
+    const sb=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 
-    const loginBox=document.getElementById('loginBox'); const chatBox=document.getElementById('chatBox'); const statusBadge=document.getElementById('statusBadge');
-    const messages=document.getElementById('messages'); const input=document.getElementById('input'); const sendBtn=document.getElementById('sendBtn'); const micBtn=document.getElementById('micBtn'); const speakBtn=document.getElementById('speakBtn'); const hint=document.getElementById('hint');
-    let lastAIText='雨宸，小爱在这里～'; let busy=false;
+    const loginBox=document.getElementById('loginBox'),enrollBox=document.getElementById('enrollBox'),chatBox=document.getElementById('chatBox'),statusBadge=document.getElementById('statusBadge');
+    const messages=document.getElementById('messages'),input=document.getElementById('input'),sendBtn=document.getElementById('sendBtn'),micBtn=document.getElementById('micBtn'),speakBtn=document.getElementById('speakBtn'),hint=document.getElementById('hint');
+    let lastAIText='雨宸，小爱在这里～',busy=false;
 
-    function showSession(session){
-      const on=!!session; loginBox.classList.toggle('hidden',on); chatBox.classList.toggle('hidden',!on); statusBadge.textContent=on?'● Online':'● Login';
+    function deviceToken(){return localStorage.getItem(DEVICE_TOKEN_KEY)||'';}
+    function showState(session){
+      const hasDevice=!!deviceToken();
+      loginBox.classList.toggle('hidden',!!session||hasDevice);
+      enrollBox.classList.toggle('hidden',!session||hasDevice);
+      chatBox.classList.toggle('hidden',!hasDevice && !session);
+      if(hasDevice) statusBadge.textContent='● Device Ready';
+      else if(session) statusBadge.textContent='● Guardian Login';
+      else statusBadge.textContent='● Login';
     }
     function addMessage(text,who='user'){const el=document.createElement('div');el.className=`msg ${who}`;el.textContent=text;messages.appendChild(el);messages.scrollTop=messages.scrollHeight;return el;}
-    function speak(text){if(!('speechSynthesis' in window))return; speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text);u.lang='zh-CN';u.rate=.95;speechSynthesis.speak(u);}
+    function speak(text){if(!('speechSynthesis' in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='zh-CN';u.rate=.95;speechSynthesis.speak(u);}
 
     async function askXiaoAi(text){
+      const dt=deviceToken();
+      if(dt){
+        const r=await fetch(DEVICE_CHAT_URL,{method:'POST',headers:{'content-type':'application/json','authorization':`Bearer ${dt}`},body:JSON.stringify({message:text})});
+        const data=await r.json().catch(()=>({}));
+        if(!r.ok||!data.reply) throw new Error(data.error||'xiaoai_device_unavailable');
+        return data.reply;
+      }
       const {data:{session}}=await sb.auth.getSession();
       if(!session) throw new Error('login_required');
-      const response=await fetch(CHAT_URL,{method:'POST',headers:{'content-type':'application/json','authorization':`Bearer ${session.access_token}`,'apikey':SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify({message:text,session_key:'xiaoai-current'})});
-      const data=await response.json().catch(()=>({}));
-      if(!response.ok||!data.reply) throw new Error(data.error||'xiaoai_unavailable');
+      const r=await fetch(CHAT_URL,{method:'POST',headers:{'content-type':'application/json','authorization':`Bearer ${session.access_token}`,'apikey':SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify({message:text,session_key:'xiaoai-current'})});
+      const data=await r.json().catch(()=>({}));
+      if(!r.ok||!data.reply) throw new Error(data.error||'xiaoai_unavailable');
       return data.reply;
     }
 
     async function submitText(){
-      const text=input.value.trim(); if(!text||busy)return; addMessage(text,'user'); input.value=''; busy=true; sendBtn.disabled=true; hint.textContent='小爱正在想…'; const thinking=addMessage('我想一想…','ai');
+      const text=input.value.trim();if(!text||busy)return;addMessage(text,'user');input.value='';busy=true;sendBtn.disabled=true;hint.textContent='小爱正在想…';const thinking=addMessage('我想一想…','ai');
       try{const reply=await askXiaoAi(text);thinking.remove();lastAIText=reply;addMessage(reply,'ai');hint.textContent='可以继续跟我说。';speak(reply);}catch(err){thinking.remove();addMessage('现在连接不到小爱后台，请让妈妈检查一下。','ai');hint.textContent=String(err.message||err);}finally{busy=false;sendBtn.disabled=false;input.focus();}
     }
 
     document.getElementById('sendLink').onclick=async()=>{
-      const email=document.getElementById('email').value.trim(); const loginHint=document.getElementById('loginHint'); if(!email)return loginHint.textContent='请输入妈妈的邮箱。';
+      const email=document.getElementById('email').value.trim(),loginHint=document.getElementById('loginHint');if(!email)return loginHint.textContent='请输入妈妈的邮箱。';
       const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:`${location.origin}${location.pathname}`,shouldCreateUser:false}});
       loginHint.textContent=error?`发送失败：${error.message}`:'登录链接已发送，请在这台设备的同一浏览器打开最新邮件中的链接。';
     };
 
-    sendBtn.addEventListener('click',submitText); input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitText();}}); speakBtn.addEventListener('click',()=>speak(lastAIText));
+    document.getElementById('enrollBtn').onclick=async()=>{
+      const enrollBtn=document.getElementById('enrollBtn'),enrollHint=document.getElementById('enrollHint');
+      const {data:{session}}=await sb.auth.getSession();if(!session)return enrollHint.textContent='妈妈登录已失效，请重新登录。';
+      enrollBtn.disabled=true;enrollHint.textContent='正在授权这台手机…';
+      try{
+        const r=await fetch(ENROLL_URL,{method:'POST',headers:{'content-type':'application/json','authorization':`Bearer ${session.access_token}`,'apikey':SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify({device_label:'Melody phone - XiaoAi direct'})});
+        const data=await r.json().catch(()=>({}));
+        if(!r.ok||!data.device_token) throw new Error(data.error||'enrollment_failed');
+        localStorage.setItem(DEVICE_TOKEN_KEY,data.device_token);
+        await sb.auth.signOut();
+        enrollHint.textContent='授权完成。妈妈已经退出 Supabase，这台手机仍可使用小爱。';
+        showState(null);
+      }catch(err){enrollHint.textContent=String(err.message||err);}finally{enrollBtn.disabled=false;}
+    };
+
+    document.getElementById('logoutBtn').onclick=async()=>{await sb.auth.signOut();showState(null);};
+    sendBtn.addEventListener('click',submitText);input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitText();}});speakBtn.addEventListener('click',()=>speak(lastAIText));
+
     const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
     if(SpeechRecognition){const rec=new SpeechRecognition();rec.lang='zh-CN';rec.interimResults=false;rec.continuous=false;rec.onstart=()=>{micBtn.classList.add('listening');micBtn.textContent='● 正在听…';};rec.onend=()=>{micBtn.classList.remove('listening');micBtn.textContent='🎤 和我说话';};rec.onresult=e=>{input.value=e.results[0][0].transcript;submitText();};micBtn.addEventListener('click',()=>{if(!busy){try{rec.start();}catch{}}});}
     else micBtn.addEventListener('click',()=>hint.textContent='这个浏览器暂时不支持网页语音输入，可以先打字。');
 
-    sb.auth.onAuthStateChange((_e,session)=>showSession(session));
-    const {data:{session}}=await sb.auth.getSession(); showSession(session);
+    sb.auth.onAuthStateChange((_e,session)=>showState(session));
+    const {data:{session}}=await sb.auth.getSession();showState(session);
   </script>
 </body>
 </html>
