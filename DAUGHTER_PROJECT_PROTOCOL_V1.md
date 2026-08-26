@@ -58,14 +58,29 @@ Any future integration with XiaoE Core or another project should cross an explic
 
 ## Current Source of Truth
 
-At project bootstrap, source-of-truth ownership is:
+Current source-of-truth ownership is:
 - GitHub repository: project code, architecture, versioned protocol, configuration templates, migration history
-- Daughter Supabase/project backend: only after a dedicated daughter backend is explicitly created and registered
+- Daughter Supabase backend: persistent identity, access and shared continuity runtime state
 - XiaoE Core: behavior, governance, reusable capability definitions and cross-project operating principles
 - Business/application runtime: actual live runtime truth once deployed
 - Daughter project memory/checkpoints: continuation aid only, never stronger than current verified source/runtime state
 
 Do not treat XiaoE Core memory as transaction truth for this daughter project.
+
+## Current Backend State
+
+Verified dedicated Supabase project:
+- project id: `vmegjuceiuplqixizwso`
+- project name: `daughter-companion-ai`
+- current health: `ACTIVE_HEALTHY`
+- verified core tables:
+  - `daughter_identities`
+  - `companion_access`
+  - `shared_continuity_state`
+
+This backend is the daughter project's own runtime/persistence boundary and must remain separate from XiaoE Core and other projects.
+
+Backend existence does not imply that every planned continuity, cross-account, Guardian, memory, or migration feature is fully deployed. Feature-level status must still be verified from the relevant schema, runtime state, implementation contract, and live behavior before claiming completion.
 
 ## Bootstrap Rule
 
@@ -73,23 +88,23 @@ When entering this project, first establish:
 - active project = `daughter-companion-ai`
 - current user objective
 - current repository state
-- whether a dedicated backend exists
+- current dedicated backend identity and health
 - current deployment/runtime state if any
 - verified project state versus remembered/project-planned state
 - immediate scope and risk
 
-If a required project dependency does not yet exist, record it as `not configured` rather than assuming one.
+If a required project dependency or feature does not yet exist, record it as `not configured` or `not verified` rather than assuming one.
 
 ## Development Mode
 
-This project starts lean.
+This project remains lean.
 
 Default rules:
 - add only structure needed by a verified requirement,
 - prefer reversible and independently testable changes,
 - keep project-specific logic here rather than pushing it into XiaoE Core,
 - promote a lesson back toward Core only when it is genuinely reusable, verified, and approved through Core learning/governance rules,
-- avoid premature database, queue, agent, provider-router, or infrastructure layers.
+- avoid premature queue, agent, provider-router, or infrastructure layers.
 
 ## Capability Use
 
@@ -132,20 +147,21 @@ Never commit:
 - private API keys,
 - customer/private business data.
 
-Use environment/secret stores when runtime credentials are eventually required.
+Use environment/secret stores for runtime credentials.
 
 Store only minimum project data needed for the product.
 
 ## Backend Rule
 
-No daughter Supabase backend is assumed yet.
+The daughter project has its own dedicated Supabase backend.
 
-When a backend is later created:
-- it should have its own project identity,
-- migrations should be versioned in this daughter repository,
-- RLS/authorization should be designed from the actual product roles/data model,
-- Core migrations must not be blindly copied unless the daughter genuinely requires the same subsystem,
-- fresh-project bootstrap should be tested independently before production use.
+Backend rules:
+- it must retain its own project identity;
+- migrations should be versioned in this daughter repository when schema evolution is performed;
+- RLS/authorization must be designed from the actual product roles/data model;
+- Core migrations must not be blindly copied unless the daughter genuinely requires the same subsystem;
+- fresh-project bootstrap should be tested independently before any production-style rollout;
+- current live backend state outranks stale planning text or remembered setup state.
 
 ## Behavior Customization Boundary
 
@@ -178,7 +194,8 @@ Current verified state:
 - repository visibility: public
 - default branch: `main`
 - project repository contains active identity, policy, architecture, scope, and governance files
-- no dedicated daughter Supabase project is assumed unless separately verified
+- dedicated Supabase project exists and is currently healthy
+- verified core backend tables include `daughter_identities`, `companion_access`, and `shared_continuity_state`
 - XiaoE Core remains separate and is not modified by this protocol
 
 Historical bootstrap note:
