@@ -46,12 +46,18 @@
 
     const SUPABASE_URL = 'https://vmegjuceiuplqixizwso.supabase.co';
     const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_iyGQ_OSRQgkT5Vb3Z_ASsQ_f0OrOEx4';
+    const PENDING_AUTH_KEY = 'xiaoai_pending_authorization_id';
+    const CLEAN_CONSENT_URL = `${location.origin}${location.pathname}`;
+
     const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
     });
 
     const qs = new URLSearchParams(location.search);
-    const authorizationId = qs.get('authorization_id');
+    const queryAuthorizationId = qs.get('authorization_id');
+    if (queryAuthorizationId) localStorage.setItem(PENDING_AUTH_KEY, queryAuthorizationId);
+    const authorizationId = queryAuthorizationId || localStorage.getItem(PENDING_AUTH_KEY);
+
     const loginBox = document.getElementById('loginBox');
     const consentBox = document.getElementById('consentBox');
     const doneBox = document.getElementById('doneBox');
@@ -61,14 +67,20 @@
     function hide(el){ el.classList.add('hidden'); }
     function setStatus(msg){ status.textContent = msg; }
 
+    async function getCurrentUser() {
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (sessionData?.session?.user) return sessionData.session.user;
+      const { data: userData } = await supabase.auth.getUser();
+      return userData?.user || null;
+    }
+
     async function load() {
       if (!authorizationId) {
         setStatus('缺少 authorization_id。请从 ChatGPT 的连接流程重新进入。');
         return;
       }
 
-      const { data: userData } = await supabase.auth.getUser();
-      const user = userData?.user;
+      const user = await getCurrentUser();
       if (!user) {
         hide(consentBox); show(loginBox);
         setStatus('请先登录与小爱绑定的 Supabase 账号。');
@@ -83,6 +95,7 @@
       }
 
       if (data?.redirect_url && !data?.authorization_id) {
+        localStorage.removeItem(PENDING_AUTH_KEY);
         show(doneBox);
         setStatus('已授权，正在返回…');
         location.href = data.redirect_url;
@@ -99,23 +112,30 @@
     document.getElementById('sendLink').onclick = async () => {
       const email = document.getElementById('email').value.trim();
       if (!email) return setStatus('请输入邮箱。');
-      const redirectTo = location.href;
+      if (!authorizationId) return setStatus('缺少授权请求，请从 ChatGPT 重新进入连接流程。');
+
+      localStorage.setItem(PENDING_AUTH_KEY, authorizationId);
+
+      // Important: use the exact allow-listed consent URL without query parameters.
+      // The OAuth authorization_id is preserved locally on this same GitHub origin.
       const { error } = await supabase.auth.signInWithOtp({
         email,
-        options: { emailRedirectTo: redirectTo, shouldCreateUser: false }
+        options: { emailRedirectTo: CLEAN_CONSENT_URL, shouldCreateUser: false }
       });
-      setStatus(error ? `发送失败：${error.message}` : '登录链接已发送，请打开最新邮件中的链接。');
+      setStatus(error ? `发送失败：${error.message}` : '登录链接已发送，请在这台电脑的同一浏览器打开最新邮件中的链接。');
     };
 
     document.getElementById('approve').onclick = async () => {
       const { data, error } = await supabase.auth.oauth.approveAuthorization(authorizationId);
       if (error) return setStatus(`授权失败：${error.message}`);
+      localStorage.removeItem(PENDING_AUTH_KEY);
       if (data?.redirect_url) location.href = data.redirect_url;
     };
 
     document.getElementById('deny').onclick = async () => {
       const { data, error } = await supabase.auth.oauth.denyAuthorization(authorizationId);
       if (error) return setStatus(`拒绝失败：${error.message}`);
+      localStorage.removeItem(PENDING_AUTH_KEY);
       if (data?.redirect_url) location.href = data.redirect_url;
     };
 
