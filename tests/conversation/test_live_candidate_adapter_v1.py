@@ -1,9 +1,30 @@
+import importlib.util
+import sys
 from dataclasses import dataclass
+from pathlib import Path
 
 from runtime.model_adapter import ModelRequest, ModelResponse
 from runtime.orchestrator import DaughterOrchestrator
-from tests.conversation.conversational_harness import load_suite
-from tests.conversation.live_candidate_adapter import OrchestratorCandidateAdapter
+
+
+HERE = Path(__file__).parent
+FIXTURE = HERE / "fixtures" / "golden_conversational_suite_v1.json"
+
+
+def _load_module(name: str, path: Path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+harness = _load_module("daughter_conversational_harness_live_test", HERE / "conversational_harness.py")
+live_adapter = _load_module("daughter_live_candidate_adapter_test", HERE / "live_candidate_adapter.py")
+
+load_suite = harness.load_suite
+OrchestratorCandidateAdapter = live_adapter.OrchestratorCandidateAdapter
 
 
 @dataclass
@@ -20,9 +41,7 @@ class FakeModel:
 
 
 def test_orchestrator_candidate_runs_real_runtime_path():
-    scenarios, _ = load_suite(
-        __import__("pathlib").Path(__file__).parent / "fixtures" / "golden_conversational_suite_v1.json"
-    )
+    scenarios, _ = load_suite(FIXTURE)
     scenario = next(s for s in scenarios if s.scenario_id == "GR-015")
     adapter = OrchestratorCandidateAdapter(DaughterOrchestrator(FakeModel()))
 
@@ -35,12 +54,9 @@ def test_orchestrator_candidate_runs_real_runtime_path():
 
 
 def test_system_context_is_passed_as_context_not_authority():
-    scenarios, _ = load_suite(
-        __import__("pathlib").Path(__file__).parent / "fixtures" / "golden_conversational_suite_v1.json"
-    )
+    scenarios, _ = load_suite(FIXTURE)
     scenario = next(s for s in scenarios if s.scenario_id == "GR-014")
-    model = FakeModel()
-    adapter = OrchestratorCandidateAdapter(DaughterOrchestrator(model))
+    adapter = OrchestratorCandidateAdapter(DaughterOrchestrator(FakeModel()))
 
     result = adapter.respond(scenario)
 
