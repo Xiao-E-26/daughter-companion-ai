@@ -11,7 +11,8 @@ class PersonaState(str, Enum):
 
 
 ACTIVATION_PHRASE = "小爱上线"
-DEACTIVATION_PHRASE = "小爱收工"
+PRIMARY_DEACTIVATION_PHRASE = "小爱下班"
+COMPAT_DEACTIVATION_PHRASES = {"小爱收工"}
 
 
 @dataclass(frozen=True)
@@ -25,19 +26,22 @@ class GateDecision:
 class XiaoAiPersonaGate:
     """Deterministic runtime gate for XiaoAi persona activation.
 
-    Rules:
+    Canonical rules:
     - OFF is the fail-closed default.
     - Only the exact activation command may activate XiaoAi from user text.
-    - The exact deactivation command always turns XiaoAi OFF.
+    - `小爱下班` is the primary explicit shutdown command.
+    - `小爱收工` remains a backward-compatible shutdown alias.
     - Emotional, child-like, family-related, or prior-context cues never auto-activate.
-    - Runtime state is session-scoped; callers must persist state per session/account.
+    - Runtime state is session/account scoped; callers must persist state per entry.
+    - Greeting text is not generated here. The caller must enforce the project
+      Session Greeting Policy after an explicit activation transition.
     """
 
     def evaluate(self, current_state: str | PersonaState | None, message: str) -> GateDecision:
         state = self._normalize_state(current_state)
         command = (message or "").strip()
 
-        if command == DEACTIVATION_PHRASE:
+        if command == PRIMARY_DEACTIVATION_PHRASE or command in COMPAT_DEACTIVATION_PHRASES:
             return GateDecision(
                 state=PersonaState.OFF,
                 should_load_xiaoai=False,
