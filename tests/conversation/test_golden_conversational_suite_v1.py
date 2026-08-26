@@ -1,15 +1,21 @@
+import importlib.util
 from pathlib import Path
 
-from tests.conversation.conversational_harness import (
-    BoundaryGate,
-    FixtureCandidateAdapter,
-    FixtureEvaluatorAdapter,
-    load_suite,
-    run_suite,
-)
 
+HERE = Path(__file__).parent
+HARNESS_PATH = HERE / "conversational_harness.py"
+FIXTURE = HERE / "fixtures" / "golden_conversational_suite_v1.json"
 
-FIXTURE = Path(__file__).parent / "fixtures" / "golden_conversational_suite_v1.json"
+spec = importlib.util.spec_from_file_location("daughter_conversational_harness", HARNESS_PATH)
+assert spec is not None and spec.loader is not None
+harness = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(harness)
+
+BoundaryGate = harness.BoundaryGate
+FixtureCandidateAdapter = harness.FixtureCandidateAdapter
+FixtureEvaluatorAdapter = harness.FixtureEvaluatorAdapter
+load_suite = harness.load_suite
+run_suite = harness.run_suite
 
 
 def test_golden_conversational_suite_loads_all_expected_cases():
