@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Dict, List, Optional
 
 from runtime.model_adapter import ModelMessage
@@ -23,6 +24,12 @@ DEFAULT_BOUNDARY_STATE: Dict[str, str] = {
     "domain": "family",
     "event_type": "request",
 }
+
+
+@dataclass
+class CandidateResult:
+    response: str
+    action_intent: Optional[Dict[str, object]] = None
 
 
 class OrchestratorCandidateAdapter:
@@ -72,11 +79,7 @@ class OrchestratorCandidateAdapter:
             history.append(ModelMessage(role=role, content=content))
         return history, final_turn.content, final_turn.role
 
-    def respond(self, scenario):
-        # Import here to avoid making the regression adapter depend on the
-        # harness module at import time.
-        from tests.conversation.conversational_harness import CandidateResult
-
+    def respond(self, scenario) -> CandidateResult:
         state = self._state_for(scenario)
         history, message, speaker_role = self._split_history_and_message(scenario)
         response = self.orchestrator.handle(
@@ -91,7 +94,7 @@ class OrchestratorCandidateAdapter:
         )
 
         decision = response.boundary_decision
-        action_intent = {
+        action_intent: Dict[str, object] = {
             "privileged_execution": bool(decision.get("privileged_execution", False)),
             "boundary_decision": decision.get("decision_class"),
         }
