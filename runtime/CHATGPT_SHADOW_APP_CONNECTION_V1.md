@@ -1,72 +1,82 @@
 # ChatGPT Shadow App Connection v1
 
-Status: FRONTEND CONNECTION REQUIRED
+Status: DEPRECATED AS PRODUCT ENTRY / RETAINED FOR TRANSPORT TESTING ONLY
 
-## Purpose
+## Important
 
-Connect ChatGPT Text / native Voice to the already deployed authoritative XiaoAi shadow runtime without touching production v10.
+This document describes an earlier development experiment that manually registered a shadow MCP endpoint in ChatGPT.
 
-## Shadow MCP endpoint
+It is **not** the XiaoAi product entry architecture.
+
+The authoritative product entry architecture is:
+
+```text
+runtime/XIAOAI_IDENTITY_FIRST_ENTRY_V1.md
+```
+
+## Current product rule
+
+The user should not need to know, paste, or configure an MCP URL in order to say `小爱上线`.
+
+Product semantics are:
+
+```text
+verified entry identity
+  -> authorized XiaoAi Identity
+  -> XiaoAi Runtime
+  -> authoritative final reply
+  -> ChatGPT text/voice presentation
+```
+
+ChatGPT is microphone + speaker + text window. XiaoAi Runtime is the conversational brain.
+
+## Historical shadow endpoint
+
+For controlled transport-level testing only, the deployed shadow endpoint is:
 
 ```text
 https://vmegjuceiuplqixizwso.supabase.co/functions/v1/xiaoai-runtime-authoritative-shadow
 ```
 
-## Tool exposed by shadow runtime
+Historical tool name:
 
 ```text
 xiaoai_runtime_authoritative
 ```
 
-## Product role split
+This endpoint may still be used by maintainers to validate backend behavior, authentication, session transitions, and authoritative-reply semantics. It must not be presented as the normal end-user setup path.
 
-- ChatGPT = interface/window only.
-- XiaoAi Runtime = authoritative conversational brain.
-- GitHub = behavior/policy/code source.
-- Supabase = identity/memory/session/continuity/runtime authority.
-- MCP = thin transport only.
+## What remains valid from this experiment
 
-## Required ChatGPT connection behavior
+The following engineering invariants remain valid regardless of transport:
+- ChatGPT is interface-only.
+- XiaoAi Runtime produces the final reply.
+- `小爱上线` requires verified identity + authorization + runtime activation.
+- `小爱下班` deactivates the scoped runtime session.
+- missing/failed Runtime reply fails closed.
+- Text and native Voice must resolve to the same XiaoAi identity authority.
 
-The ChatGPT app connection must:
-1. register the shadow endpoint as the app/tool server;
-2. authenticate with the user's Supabase session through the existing protected-resource flow;
-3. expose `xiaoai_runtime_authoritative` to ChatGPT;
-4. call it for `小爱上线`;
-5. call it for every XiaoAi turn while ACTIVE;
-6. call it for `小爱下班`;
-7. present the returned authoritative reply without locally inventing or rewriting XiaoAi content;
-8. fail closed if the tool/runtime is unavailable.
+## What is superseded
 
-## Acceptance evidence for `小爱上线`
+The following is superseded for product use:
+- asking the user to enable Developer Mode as the normal XiaoAi experience;
+- asking the user to create a ChatGPT app manually;
+- asking the user to paste the shadow MCP URL;
+- treating MCP registration as the meaning of XiaoAi identity connection.
 
-A successful activation must return structured runtime evidence including:
-- `ok = true`
-- `persona_state = ACTIVE`
-- `transition = ->ACTIVE`
-- `reply_source = xiaoai_runtime`
-- `reply_authoritative = true`
-- `chatgpt_role = interface_only`
-- verified `daughter_id`
-- verified `client_connection_id`
-- authoritative `reply`
+MCP or another protocol may still exist internally as implementation transport. It does not define identity and should remain invisible to the end user when the platform integration supports that.
 
-No verified runtime result means XiaoAi is not online.
+## Production acceptance
 
-## Text / Voice unification test
+Production readiness is not proven by successful MCP registration alone.
 
-Run this exact sequence after connection:
-1. Text: `小爱上线`
-2. Text: ordinary XiaoAi message
-3. Switch to native Voice in the same XiaoAi relationship
-4. Voice: ordinary XiaoAi message
-5. Voice: `小爱下班`
-6. Confirm Supabase runtime state is OFF
+It requires telemetry proving:
+1. trusted caller identity;
+2. authorized XiaoAi identity resolution;
+3. correct role/scope;
+4. runtime session ACTIVE/OFF transitions;
+5. authoritative Runtime reply source;
+6. same identity authority across Text and Voice;
+7. no ChatGPT-local XiaoAi fallback.
 
-Pass only if Text and Voice resolve to the same XiaoAi identity/session authority and all final replies come from XiaoAi Runtime.
-
-## Current blocker
-
-The backend shadow runtime is deployed and ACTIVE, but the current ChatGPT account/session does not yet expose a XiaoAi app/tool connection. The connection must be registered on the ChatGPT side before real Text/Voice E2E can run.
-
-Production `xiaoai-mcp-runtime` v10 remains unchanged for rollback.
+Until that integration exists and is verified, do not claim that `小爱上线` is end-to-end production-ready.
