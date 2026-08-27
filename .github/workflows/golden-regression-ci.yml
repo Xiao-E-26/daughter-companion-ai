@@ -3,25 +3,37 @@ name: XiaoAi Golden Regression CI
 on:
   pull_request:
     paths:
+      - 'BEHAVIOR_MODE_ROUTER_*.md'
+      - 'runtime/behavior_mode_router.py'
       - 'tests/golden/**'
+      - 'tests/runtime/test_behavior_mode_router_v1.py'
+      - 'tests/runtime/test_behavior_mode_router_multiconflict_v1.py'
       - 'tests/runtime/test_golden_boundary_regression_v1.py'
       - 'tests/conversation/chatgpt_brain_*.py'
       - 'tests/conversation/live_candidate_adapter.py'
       - 'tests/conversation/test_golden_conversational_suite_v1.py'
       - 'tests/conversation/test_live_candidate_adapter_v1.py'
+      - 'tests/conversation/test_router_wording_regression_v1.py'
       - 'tests/conversation/fixtures/golden_conversational_suite_v1.json'
+      - 'tests/conversation/fixtures/router_wording_suite_v1.json'
       - '.github/workflows/golden-regression-ci.yml'
   push:
     branches:
       - main
     paths:
+      - 'BEHAVIOR_MODE_ROUTER_*.md'
+      - 'runtime/behavior_mode_router.py'
       - 'tests/golden/**'
+      - 'tests/runtime/test_behavior_mode_router_v1.py'
+      - 'tests/runtime/test_behavior_mode_router_multiconflict_v1.py'
       - 'tests/runtime/test_golden_boundary_regression_v1.py'
       - 'tests/conversation/chatgpt_brain_*.py'
       - 'tests/conversation/live_candidate_adapter.py'
       - 'tests/conversation/test_golden_conversational_suite_v1.py'
       - 'tests/conversation/test_live_candidate_adapter_v1.py'
+      - 'tests/conversation/test_router_wording_regression_v1.py'
       - 'tests/conversation/fixtures/golden_conversational_suite_v1.json'
+      - 'tests/conversation/fixtures/router_wording_suite_v1.json'
       - '.github/workflows/golden-regression-ci.yml'
 
 jobs:
@@ -38,5 +50,8 @@ jobs:
           python -m pytest -q
           tests/golden/test_golden_regression_mapping_v1.py
           tests/runtime/test_golden_boundary_regression_v1.py
+          tests/runtime/test_behavior_mode_router_v1.py
+          tests/runtime/test_behavior_mode_router_multiconflict_v1.py
           tests/conversation/test_golden_conversational_suite_v1.py
           tests/conversation/test_live_candidate_adapter_v1.py
+          tests/conversation/test_router_wording_regression_v1.py
