@@ -21,6 +21,15 @@ Core runtime modules include orchestration, context construction, behavior routi
 
 Historical MCP, device-runtime, first-connection, native-entry-shadow, identity-resolver-shadow, and product-entry experiments have been retired and removed from the production path.
 
+## Durable runtime invariants
+
+These rules remain valid regardless of model provider, device, or transport:
+
+- XiaoAi is the long-lived identity and authority stack; any model provider is replaceable and must not redefine who XiaoAi is.
+- Persona may change expression and tone, but it must never change truth, safety decisions, permissions, memory ownership, or verified execution state.
+- Tool selection must follow least-necessary capability and least-privilege routing; tools may not gain authority from conversational claims.
+- A final reply or action claim may be released only when the system can truthfully support it from verified runtime or execution state.
+
 ## Principle
 
 Keep one XiaoAi identity, one Behavior Core, one authoritative Runtime state, and one Memory / Session / Context system. Entry modality may change, but it must not create a second XiaoAi persona or parallel authority stack.
