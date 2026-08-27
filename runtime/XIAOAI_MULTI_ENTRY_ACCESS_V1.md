@@ -1,6 +1,6 @@
 # 小爱 Multi-Entry Access Model v1
 
-Status: DESIGN BASELINE
+Status: ACTIVE ARCHITECTURE BASELINE
 Display identity: 小爱
 Internal technical identity: `daughter`
 
@@ -35,7 +35,7 @@ All authorized entry points may load the same:
 - approved long-term memory model,
 - continuity rules.
 
-However, shared state must come from an external trusted runtime/backend rather than relying on isolated ChatGPT conversation history.
+Shared state must come from the trusted backend/runtime rather than isolated ChatGPT conversation history.
 
 ChatGPT account history, local app history, and browser storage must not be treated as the authoritative long-term identity store.
 
@@ -102,27 +102,26 @@ Permissions are attached to authenticated roles and trusted identity records, no
 
 ## Shared Memory Principle
 
-When shared memory is implemented:
-- all authorized entry points should read from the same approved memory backend,
-- writes should be attributed to the originating role/client,
-- sensitive memories should follow life-stage and privacy policy,
-- memory should support review, correction, expiration, and deletion where appropriate,
-- one client must not silently overwrite critical state created by another client.
+Authorized entry points should read from the same approved memory backend subject to role and visibility rules.
+
+Writes should be attributable to the originating role/client. Sensitive memories must follow life-stage and privacy policy. Memory must support review, correction, expiration, supersession, and deletion where appropriate.
+
+One client must not silently overwrite critical state created by another client.
 
 ## Session Separation
 
-Each entry point should maintain its own session context while sharing only approved durable state.
+Each entry point maintains its own session context while sharing only approved durable state.
 
 Example:
 
-`ChatGPT A session context`  
-`ChatGPT B session context`  
-`Web session context`  
+`ChatGPT A session context`
+`ChatGPT B session context`
+`Web session context`
 `Robot session context`
 
 All may reference:
 
-`Shared XiaoAi Identity + Approved Memory + Growth State + Guardian Policy`
+`Shared XiaoAi Identity + Approved Memory + Continuity + Guardian/Access Policy`
 
 This prevents one temporary conversation from becoming the full system truth.
 
@@ -135,15 +134,33 @@ If two clients update the same durable state:
 4. require review for safety-sensitive conflicts,
 5. never resolve permission conflicts by simply accepting the most permissive request.
 
-## ChatGPT-Specific Limitation
+## Current Architecture
 
-Two separate ChatGPT accounts can currently behave according to the same 小爱 rules, but they do not automatically share conversation history, durable memory, Guardian state, or runtime state.
+The current backend already represents the main multi-entry primitives:
+- one persistent Daughter/XiaoAi identity model;
+- authenticated user bindings;
+- role/scoped `companion_access`;
+- `client_connections` for entry points;
+- `runtime_sessions` for session/persona state;
+- Guardian relationship state;
+- shared continuity state with role-aware visibility;
+- device/client enrollment concepts.
 
-Therefore, until an external runtime is connected:
+Therefore the architecture is no longer merely conceptual.
 
-`Same rules != Same live state`
+However, implementation is not the same as every front end being connected. Some clients and bodies remain future or controlled integrations.
 
-ChatGPT should be treated as an interaction/test client, not the authoritative storage layer.
+## ChatGPT-Specific Boundary
+
+Separate ChatGPT accounts must not rely on ChatGPT-local conversation history as shared state.
+
+When they are connected through the authenticated XiaoAi backend, they may participate in the same identity/access/continuity system. Until a specific ChatGPT entry is connected through that backend path, local account history remains isolated.
+
+Core rule:
+
+`Same rules + shared backend authority = same XiaoAi relationship`
+
+`Same rules without shared backend authority != shared live state`
 
 ## Future Target Architecture
 
@@ -172,15 +189,19 @@ Core rule:
 
 `Identity continuity may be shared; authority is not automatically shared.`
 
-Adding a new account, device, or body requires explicit authorization appropriate to the role and risk level.
+Adding a new account, device, or body requires authorization appropriate to the role and risk level.
 
 ## Current Implementation Status
 
-- Same behavior rules across ChatGPT accounts: possible manually
-- Shared external identity runtime: planned
-- Shared durable memory across accounts: not yet active
-- Role authentication: not yet active
-- Guardian multi-client authorization: not yet active
-- Device identity / robot identity: future
+- Shared XiaoAi identity architecture: ACTIVE
+- Authenticated identity binding model: ACTIVE
+- Role/scoped access model: ACTIVE
+- Session/persona state model: ACTIVE
+- Guardian multi-client state model: ACTIVE
+- Shared continuity model: ACTIVE
+- Durable-memory backend architecture: ACTIVE / controlled rollout
+- Every ChatGPT/front-end entry connected end-to-end: NOT YET
+- Full live daughter-chat runtime-unification cutover: intentionally NOT part of this document/update
+- Physical robot body: FUTURE
 
-This document defines architecture only and does not mark unbuilt capabilities as active.
+This document defines the multi-entry architecture and current posture. It does not claim that every possible front end or body is already connected or production-ready.
