@@ -39,6 +39,18 @@ async function callDaughterChat(message: string, sessionKey: string) {
   return payload;
 }
 
+function requireBackendReply(result: unknown, operation: string): string {
+  const reply = typeof (result as { reply?: unknown })?.reply === "string"
+    ? (result as { reply: string }).reply.trim()
+    : "";
+
+  if (!reply) {
+    throw new Error(`invalid_backend_response:${operation}:missing_reply`);
+  }
+
+  return reply;
+}
+
 const server = new McpServer({ name: "xiaoai-runtime-bridge", version: "0.1.0" });
 
 server.registerTool(
@@ -58,9 +70,10 @@ server.registerTool(
   },
   async ({ session_key }) => {
     const result = await callDaughterChat("小爱上线", session_key);
+    const reply = requireBackendReply(result, "activate");
     return {
       structuredContent: result,
-      content: [{ type: "text", text: result?.reply || "小爱上线。" }],
+      content: [{ type: "text", text: reply }],
     };
   },
 );
@@ -68,8 +81,8 @@ server.registerTool(
 server.registerTool(
   "xiaoai_deactivate",
   {
-    title: "小爱收工",
-    description: "Use this when the user explicitly says 小爱收工. Deactivates XiaoAi for the current authenticated account and conversation session.",
+    title: "小爱下班",
+    description: "Use this when the user explicitly says 小爱下班. Deactivates XiaoAi for the current authenticated account and conversation session, then returns control to ordinary ChatGPT mode.",
     inputSchema: {
       session_key: z.string().min(1).max(200).describe("Stable ChatGPT conversation/session identifier"),
     },
@@ -81,10 +94,11 @@ server.registerTool(
     },
   },
   async ({ session_key }) => {
-    const result = await callDaughterChat("小爱收工", session_key);
+    const result = await callDaughterChat("小爱下班", session_key);
+    const reply = requireBackendReply(result, "deactivate");
     return {
       structuredContent: result,
-      content: [{ type: "text", text: result?.reply || "小爱已收工。" }],
+      content: [{ type: "text", text: reply }],
     };
   },
 );
@@ -96,7 +110,7 @@ server.registerTool(
     description: "Use this for a normal message only after XiaoAi has been activated for this conversation. The shared backend runtime decides whether the XiaoAi persona is ACTIVE or OFF.",
     inputSchema: {
       message: z.string().min(1).max(2000),
-      session_key: z.string().min(1).max(200),
+      session_key: z.string().min(1).max(200).describe("Stable ChatGPT conversation/session identifier"),
     },
     annotations: {
       readOnlyHint: false,
