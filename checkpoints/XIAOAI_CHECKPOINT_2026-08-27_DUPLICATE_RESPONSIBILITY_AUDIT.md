@@ -1,119 +1,80 @@
 # XiaoAi Checkpoint — Duplicate Responsibility Audit
 
-Status: UNFINISHED / NEXT SESSION ENTRY
+Status: COMPLETED / INCORPORATED INTO INTERNAL STRUCTURE CLEANUP
 Date: 2026-08-27
 Project: `Xiao-E-26/daughter-companion-ai`
 
-## Current Objective
+## Objective
 
-Continue a **Duplicate Responsibility Audit** of the XiaoAi repository.
+Audit XiaoAi for duplicate responsibility across modules, policies, contracts, runtime components, and documentation—not merely identical copied code.
 
-The goal is **not** merely to find identical copied code. The goal is to identify whether two or more modules, policies, contracts, runtime components, or documents are independently owning the same responsibility and could later drift or conflict.
+## Final Findings
 
-## Verified State Before Stop
+### 1. No obvious accidental duplicate runtime implementation
 
-A read-only repository inspection was performed.
+No clear case was found where the same live responsibility had been accidentally copied into two active Python runtime modules.
 
-### No obvious accidental duplicate code found
+### 2. Persona modules are adjacent, not duplicate
 
-No clear case was found where the same implementation had been accidentally copied into duplicate Python modules.
+- `runtime/persona_gate.py` owns deterministic activation/deactivation decisions.
+- `runtime/persona_gateway.py` owns session/store integration and final runtime route.
 
-### Recently added Behavior Router branch is not duplicated
+### 3. Lesson stores are reference vs persistent implementations
 
-Branch: `behavior-mode-router-v1`
+- `runtime/lesson_store.py` is an in-memory/reference implementation.
+- `runtime/persistent_lesson_store.py` is a SQLite-backed persistent/versioned implementation.
 
-Compared with `main`, it contains six deliberate changes only:
-- `.github/workflows/golden-regression-ci.yml` modified
-- `BEHAVIOR_MODE_ROUTER_CONTEXT_SHIFT_TEST_V1.md` added
-- `BEHAVIOR_MODE_ROUTER_CONTEXT_SHIFT_V1_RESULTS.md` added
-- `BEHAVIOR_MODE_ROUTER_V1.md` added
-- `runtime/behavior_mode_router.py` added
-- `tests/runtime/test_behavior_mode_router_v1.py` added
+These overlap in domain but do not currently represent accidental duplicate ownership.
 
-This did not show a second accidental Router implementation.
+### 4. Main duplication risk is policy/document ownership drift
 
-### Similar-looking runtime modules reviewed
+Memory is the clearest example. Multiple files discuss classification, retention, visibility, 80/20, and durable memory. The correct hierarchy is now explicitly defined as:
 
-1. `runtime/persona_gate.py`
-   - owns deterministic activation/deactivation decision.
+1. `MEMORY_AND_PRIVACY_POLICY_V1.md` — primary memory/privacy policy owner.
+2. `DURABLE_MEMORY_POLICY_V1.md` — durable-memory specialization under the primary owner.
+3. `MEMORY_80_20_RUNTIME_CONTRACT_V1.md` — runtime execution contract implementing the durable-memory philosophy.
 
-2. `runtime/persona_gateway.py`
-   - imports and delegates to `persona_gate`;
-   - owns session state/store integration and final runtime route.
+This follows `POLICY_OWNERSHIP_MAP_V1.md` and is recorded in `INTERNAL_STRUCTURE_MAP_V1.md`.
 
-Conclusion: adjacent responsibilities, not duplicate implementation.
+### 5. Identity / access / runtime state ownership is already separable
 
-3. `runtime/lesson_store.py`
-   - in-memory lesson store/reference implementation.
+- Project identity/purpose: `PROJECT_IDENTITY.md`
+- Policy ownership: `POLICY_OWNERSHIP_MAP_V1.md`
+- Runtime identity/access authority: Supabase identity/access graph
+- Session/persona state: Supabase `runtime_sessions`
+- Durable/private memory: `memory_private.*`
+- Cross-entry continuity: `shared_continuity_state` + `continuity_updates`
 
-4. `runtime/persistent_lesson_store.py`
-   - SQLite-backed persistent/versioned implementation.
+### 6. Behavior remains frozen and singular
 
-Conclusion: overlapping storage interface domain, but currently a deliberate evolution/reference-vs-persistent split rather than accidental duplication.
+Canonical Behavior ownership remains:
+- `core/XIAOAI_BEHAVIOR_CORE_V1.md`
+- `BEHAVIOR_MODE_ROUTER_V1.md`
 
-## Main Risk Identified
+Runtime executes these rules. It must not silently redefine them.
 
-The larger duplication risk is **responsibility duplication across policy/contract/document layers**, especially Memory.
+### 7. MCP and device/voice components are adapters, not XiaoAi owners
 
-The repo contains many Memory-related artifacts, including policy, spec, runtime contract, candidate contract, RRD model, RLS design, migration, schema/RPC, 80/20, positive-memory, pinned-memory, family-shared-memory, provenance, and multiple test packs/results.
+`mcp-runtime-bridge/`, voice engines, future robot bodies, phone clients, and other containers are entry/output adapters against the same canonical XiaoAi identity/runtime state. They must not create independent identity, Behavior, Memory, or Guardian authority.
 
-The risk is not file count by itself. The risk is that the same rule may be independently stated in multiple files and later diverge.
+## Cleanup Result
 
-## Next Exact Step
+No production/runtime code was deleted as part of this audit because no file was proven to be capability-free dead code.
 
-Start a **Duplicate Responsibility Audit** in read-only mode.
+The primary corrective action is responsibility clarification, not code removal.
 
-Recommended audit order:
+## Canonical Follow-On Reference
 
-1. **Memory ownership**
-   - map policy owner vs implementation contract vs runtime code vs test-only artifacts;
-   - identify duplicate rule ownership, especially retention / retrieval / disclosure / 80-20 / safety exceptions / cross-account visibility.
+Use `INTERNAL_STRUCTURE_MAP_V1.md` as the current top-level internal responsibility map.
 
-2. **Identity / Persona / Account ownership**
-   - `PROJECT_IDENTITY.md`
-   - `core/identity.md`
-   - `core/XIAOAI_SUBJECT_CORE_V1.md`
-   - `MEMORY_IDENTITY_ACCOUNT_MODEL_V1.md`
-   - runtime identity binding / multi-entry / mother guardian access / portable identity documents.
+## Constraints Preserved
 
-3. **Behavior / Judgment ownership**
-   - Frozen Behavior Core
-   - Growth Safety Baseline
-   - runtime behavior decision flow
-   - policies/judgment.md
-   - new Behavior Mode Router candidate branch.
+- Behavior Logic unchanged.
+- PR #11 live runtime-unification cutover remains untouched.
+- No production Edge Function deployment or cutover.
+- No Memory/Identity/Permission semantics removed.
+- No XiaoAi capability removed.
 
-4. **Guardian / Permission / RLS ownership**
-   - policy vs implementation contract vs runtime RLS/access documents.
+## Current State
 
-5. **Learning / Mentor / Lesson ownership**
-   - mentor gateway, in-memory lesson store, persistent lesson store, learning promotion protocol, learning candidate template.
-
-For each area classify every artifact as one of:
-- AUTHORITATIVE OWNER
-- IMPLEMENTATION CONTRACT
-- RUNTIME IMPLEMENTATION
-- ADAPTER / GATEWAY
-- TEST / REGRESSION ONLY
-- HISTORICAL / REFERENCE
-- DUPLICATE OWNER RISK
-
-Then report:
-- SAFE overlap
-- WATCH overlap
-- TRUE duplicate responsibility
-- recommended canonical owner
-
-## Constraints
-
-- Read-only audit first.
-- Do not delete, merge, rename, or rewrite files during the audit.
-- Do not change Frozen Behavior Core.
-- Do not touch Memory, Identity, Permission, or production runtime until duplicate ownership is clearly proven and Eric approves cleanup.
-- Follow source-of-truth verification and minimum-change discipline.
-
-## Resume Instruction
-
-When Eric next says `小E上线`, resume from:
-
-`Duplicate Responsibility Audit -> Memory ownership map first.`
+`COMPLETED — DUPLICATE RESPONSIBILITY AUDIT CLOSED; INTERNAL STRUCTURE MAP IS THE CONTINUATION POINT`
