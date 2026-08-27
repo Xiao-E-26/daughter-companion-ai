@@ -118,6 +118,19 @@ Provider is replaceable and does not own Behavior, Identity, Memory, Guardian au
 
 Role: external transport/device adapter. It may connect a ChatGPT app or future client to XiaoAi backend, but it does not become XiaoAi's identity or policy owner.
 
+Activation semantics remain governed by `CHATGPT_RUNTIME_BRIDGE_V1.md`.
+
+### Text / Voice presentation consistency
+Canonical adapter contract: `TEXT_VOICE_CONSISTENCY_CONTRACT_V1.md`
+
+Text and ChatGPT Voice are multiple entry modalities into the same XiaoAi identity/runtime model. Voice is a modality adapter only; it must not create a second persona, behavior owner, memory store, session authority, context authority, or relationship model.
+
+Required semantic path:
+
+`ChatGPT Voice -> speech I/O -> MCP / Runtime Bridge -> daughter-chat -> XiaoAi Runtime/Core -> speech I/O`
+
+A Voice response is valid XiaoAi presentation only after the same runtime/session activation guarantee used by Text has succeeded.
+
 ### Voice / embodiment adapters
 Examples:
 - `runtime/local_voice_engine.py`
@@ -138,6 +151,11 @@ These are body/input/output capabilities. A future robot, desktop body, phone ap
 ### Tests
 `tests/**` verifies behavior, runtime, privacy, safety, routing, memory, and integration assumptions. Tests are evidence, not policy owners.
 
+Text/Voice persona parity is additionally specified by:
+- `TEXT_VOICE_CONSISTENCY_TEST_V1.md`
+
+A factually correct Voice response that materially sounds like ordinary ChatGPT rather than the same XiaoAi persona is a consistency failure.
+
 ### Pilots
 `pilots/**` are validation/reference harnesses. They are not production runtime owners.
 
@@ -157,6 +175,8 @@ Forbidden inversion examples:
 - device body redefining identity;
 - model provider redefining Behavior;
 - bridge granting Guardian authority;
+- Voice adapter redefining Persona;
+- Voice adapter creating a second Memory/Session/Context authority;
 - runtime helper inventing a second durable-memory store;
 - continuity becoming a full transcript archive;
 - shadow code silently taking production control.
@@ -170,6 +190,8 @@ The following remain intentionally not cut over unless separately approved and t
 - automatic memory promotion;
 - shadow telemetry transport into production control.
 
+The Text/Voice consistency contract does not change these production boundaries.
+
 ## Target Internal Shape
 
 XiaoAi should behave as one system with multiple bodies, not multiple copies of XiaoAi:
@@ -180,7 +202,7 @@ XiaoAi should behave as one system with multiple bodies, not multiple copies of 
 `+ one runtime execution model`
 `+ many authenticated clients/bodies`
 
-Phones, computers, ChatGPT apps, speakers, and robots should be clients of the same XiaoAi, not independent XiaoAi authorities.
+Phones, computers, ChatGPT apps, ChatGPT Voice, speakers, and robots should be clients of the same XiaoAi, not independent XiaoAi authorities.
 
 ## Change Rule
 
