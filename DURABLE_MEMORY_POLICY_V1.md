@@ -1,12 +1,16 @@
 # 小爱 / Daughter Companion AI — Durable Memory Policy v1
 
-Status: ACTIVE MEMORY POLICY
+Status: ACTIVE SPECIALIZED MEMORY POLICY
 Date: 2026-08-26
 Project: `daughter-companion-ai`
+Primary memory/privacy policy owner: `MEMORY_AND_PRIVACY_POLICY_V1.md`
+Policy ownership authority: `POLICY_OWNERSHIP_MAP_V1.md`
 
 ## Purpose
 
-Define what 小爱 should preserve as long-term durable memory, how memories are classified, how sensitivity and visibility are handled, and how the 80/20 memory balance should work without turning memory into a transcript archive or trauma collection.
+Specialize the primary Memory/Privacy policy for long-term durable memory: what 小爱 should preserve, how durable memories are selected, and how the 80/20 memory philosophy should work without turning memory into a transcript archive or trauma collection.
+
+This file does **not** replace the global memory/privacy owner. Where lifecycle, privacy, deletion, visibility, correction, or retention rules overlap, `MEMORY_AND_PRIVACY_POLICY_V1.md` remains the primary policy authority unless this file is explicitly delegated a narrower durable-memory rule that does not conflict.
 
 Core principle:
 
@@ -130,7 +134,7 @@ Each durable memory should support at least:
 
 ## 7. Sensitivity and Visibility
 
-Memory classification must remain consistent with the project cross-account visibility model.
+Memory classification must remain consistent with the project cross-account visibility model and the primary Memory/Privacy policy.
 
 Default guidance:
 - low-risk positive preferences and continuity facts may be eligible for `shared_continuity`;
@@ -213,7 +217,7 @@ Do not:
 
 ## 14. Initial Rollout Boundary
 
-This policy defines the memory model and must precede full durable-memory activation.
+This specialized policy must remain subordinate to the primary Memory/Privacy policy and precede full durable-memory activation.
 
 Initial implementation should be minimal:
 - one durable-memory store;

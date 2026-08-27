@@ -1,12 +1,12 @@
 # XiaoAi System Repair Manifest v1
 
-Status: REPAIR CANDIDATE
+Status: MERGED BASELINE / ACTIVE REFERENCE
 Date: 2026-08-27
-Branch: `xiaoai-full-repair-v1`
+Merged through: PR #10 into `main`
 
 ## Non-negotiable constraint
 
-Behavior Logic is frozen for this repair. The following paths are protected by CI and must not change in this branch:
+Behavior Logic is frozen. The following paths remain protected by CI and must not be changed as part of internal-structure cleanup:
 
 - `core/XIAOAI_BEHAVIOR_CORE_V1.md`
 - `BEHAVIOR_FREEZE_BASELINE_V1.md`
@@ -15,9 +15,11 @@ Behavior Logic is frozen for this repair. The following paths are protected by C
 
 ## Capability preservation rule
 
-The repair may remove duplication, narrow unsafe exposure, add constraints, add indexes, add atomic primitives, and clarify source-of-truth ownership. It must not remove XiaoAi capabilities.
+Internal cleanup may remove duplication, narrow unsafe exposure, add constraints, add indexes, add atomic primitives, and clarify source-of-truth ownership. It must not remove XiaoAi capabilities.
 
 ## Canonical responsibility map
+
+For the current top-level internal map, see `INTERNAL_STRUCTURE_MAP_V1.md`.
 
 ### Behavior
 - Canonical owner: Frozen Behavior Core + Behavior Router contract.
@@ -32,6 +34,9 @@ The repair may remove duplication, narrow unsafe exposure, add constraints, add 
 - Activation remains explicit; OFF does not auto-promote to ACTIVE.
 
 ### Durable memory
+- Primary policy owner: `MEMORY_AND_PRIVACY_POLICY_V1.md`.
+- Durable-memory specialization: `DURABLE_MEMORY_POLICY_V1.md`.
+- Runtime 80/20 execution contract: `MEMORY_80_20_RUNTIME_CONTRACT_V1.md`.
 - Canonical durable/private memory domain: `memory_private.*`.
 - `public.memories` remains a compatibility/runtime-facing memory surface and must not override private canonical revision/tombstone semantics.
 - GitHub `MemoryManager` remains provider-neutral runtime abstraction and test contract, not the database source of truth.
@@ -50,10 +55,10 @@ The repair may remove duplication, narrow unsafe exposure, add constraints, add 
 
 ## Applied structural repairs
 
-1. Memory expiry handling in GitHub runtime hardening branch.
+1. Memory expiry handling in GitHub runtime hardening.
 2. Retrieved context marked as non-authority / non-instruction supporting data.
-3. Golden CI coverage expanded to all runtime/test conversation paths.
-4. Cross-account continuity state now has explicit visibility.
+3. Golden CI coverage expanded to runtime/test conversation paths.
+4. Cross-account continuity state has explicit visibility.
 5. Continuity SELECT policy is role-aware.
 6. Hot foreign-key lookup indexes added.
 7. Repeated `auth.uid()` RLS calls optimized without changing access semantics.
@@ -61,7 +66,7 @@ The repair may remove duplication, narrow unsafe exposure, add constraints, add 
 9. Service-role-only atomic Guardian claim primitive added.
 10. Behavior Logic freeze CI added.
 
-## Verified current-data health before repair continuation
+## Verified current-data health at repair completion
 
 The following checks returned zero issues:
 
@@ -72,7 +77,7 @@ The following checks returned zero issues:
 - active expired public memories;
 - runtime/client user-daughter scope mismatch.
 
-## Explicitly not changed
+## Explicitly not changed by this repair
 
 - Frozen Behavior Core;
 - Behavior Freeze Baseline;
@@ -85,20 +90,14 @@ The following checks returned zero issues:
 
 ## Remaining controlled cutovers
 
-These require separate regression evidence before activation:
+These remain separate future work and require regression evidence plus explicit approval before activation:
 
 1. Switch `xiaoai-guardian-link` POST mutation path to `claim_xiaoai_guardian_link_atomic`.
-2. Introduce Signal Generator v1 in Shadow-only mode.
+2. Introduce/activate Signal Generator only under controlled Shadow validation.
 3. Add durable Shadow telemetry transport.
 4. Unify `daughter-chat` with the canonical runtime boundary incrementally, without changing Behavior Logic.
 5. Decide and document compatibility lifecycle for `public.memories` versus `memory_private.*`.
 
-## Merge rule
+## Current rule
 
-This branch is not ready to merge until:
-
-- Behavior Logic Freeze CI passes;
-- Golden Regression CI passes;
-- changed-file review confirms no protected Behavior Logic path changed;
-- Supabase post-migration security/data-integrity checks remain clean;
-- no production capability regression is detected.
+This manifest is now a historical/active baseline reference, not an open merge candidate. Any new work should start from current `main` and use a separate branch/PR.
