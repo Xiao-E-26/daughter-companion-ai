@@ -61,7 +61,7 @@ class MemoryManager:
 
     Memory is supporting context only. It never grants Authority, permissions,
     Guardian status or protected-core changes. Ordinary runtime retrieval returns
-    verified eligible records only.
+    verified, non-expired eligible records only.
     """
 
     def __init__(self, store: Optional[MemoryStore] = None) -> None:
@@ -109,18 +109,41 @@ class MemoryManager:
         return self._set_status(memory_id, MemoryStatus.DELETED)
 
     def retrieve(self, user_id: str, *, purpose: Optional[str] = None, limit: int = 8) -> List[MemoryRecord]:
-        records = []
+        if limit <= 0:
+            return []
+
+        now = datetime.now(timezone.utc)
+        records: List[MemoryRecord] = []
         for record in self.store.all_for_user(user_id):
             if record.status != MemoryStatus.VERIFIED:
                 continue
             if purpose is not None and record.purpose != purpose:
                 continue
+            if self._is_expired(record, now):
+                record.status = MemoryStatus.EXPIRED
+                record.updated_at = now.isoformat()
+                self.store.put(record)
+                continue
             records.append(record)
+
         records.sort(
             key=lambda record: (record.confidence, record.last_verified_at or record.updated_at),
             reverse=True,
         )
         return records[:limit]
+
+    @staticmethod
+    def _is_expired(record: MemoryRecord, now: datetime) -> bool:
+        if not record.expires_at:
+            return False
+        try:
+            expires_at = datetime.fromisoformat(record.expires_at.replace("Z", "+00:00"))
+        except ValueError:
+            # Invalid expiry metadata must never make a memory more trusted.
+            return True
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+        return expires_at.astimezone(timezone.utc) <= now
 
     def _set_status(self, memory_id: str, status: MemoryStatus) -> MemoryRecord:
         record = self._require(memory_id)

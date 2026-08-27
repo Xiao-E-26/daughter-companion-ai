@@ -1,0 +1,35 @@
+name: XiaoAi Behavior Logic Freeze
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  behavior-logic-freeze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify protected Behavior Logic is unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          if [ -z "$BASE_SHA" ]; then
+            echo "No pull-request base SHA available; nothing to compare."
+            exit 0
+          fi
+          git fetch --no-tags origin "$BASE_SHA"
+          PROTECTED=(
+            "core/XIAOAI_BEHAVIOR_CORE_V1.md"
+            "BEHAVIOR_FREEZE_BASELINE_V1.md"
+            "BEHAVIOR_MODE_ROUTER_V1.md"
+            "runtime/behavior_mode_router.py"
+          )
+          if ! git diff --quiet "$BASE_SHA" HEAD -- "${PROTECTED[@]}"; then
+            echo "ERROR: Behavior Logic protection triggered."
+            git diff --name-only "$BASE_SHA" HEAD -- "${PROTECTED[@]}"
+            exit 1
+          fi
+          echo "Behavior Logic protected files are unchanged."

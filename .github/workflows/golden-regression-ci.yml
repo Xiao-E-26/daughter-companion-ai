@@ -4,48 +4,24 @@ on:
   pull_request:
     paths:
       - 'BEHAVIOR_MODE_ROUTER_*.md'
-      - 'runtime/behavior_mode_router.py'
-      - 'runtime/behavior_shadow_router.py'
+      - 'core/XIAOAI_BEHAVIOR_CORE_V1.md'
+      - 'BEHAVIOR_FREEZE_BASELINE_V1.md'
+      - 'runtime/**'
       - 'tests/golden/**'
-      - 'tests/runtime/fixtures/behavior_shadow_staging_v1.json'
-      - 'tests/runtime/fixtures/behavior_shadow_context_shift_staging_v1.json'
-      - 'tests/runtime/test_behavior_mode_router_v1.py'
-      - 'tests/runtime/test_behavior_mode_router_multiconflict_v1.py'
-      - 'tests/runtime/test_behavior_shadow_router_v1.py'
-      - 'tests/runtime/test_behavior_shadow_staging_v1.py'
-      - 'tests/runtime/test_behavior_shadow_context_shift_staging_v1.py'
-      - 'tests/runtime/test_golden_boundary_regression_v1.py'
-      - 'tests/conversation/chatgpt_brain_*.py'
-      - 'tests/conversation/live_candidate_adapter.py'
-      - 'tests/conversation/test_golden_conversational_suite_v1.py'
-      - 'tests/conversation/test_live_candidate_adapter_v1.py'
-      - 'tests/conversation/test_router_wording_regression_v1.py'
-      - 'tests/conversation/fixtures/golden_conversational_suite_v1.json'
-      - 'tests/conversation/fixtures/router_wording_suite_v1.json'
+      - 'tests/runtime/**'
+      - 'tests/conversation/**'
       - '.github/workflows/golden-regression-ci.yml'
   push:
     branches:
       - main
     paths:
       - 'BEHAVIOR_MODE_ROUTER_*.md'
-      - 'runtime/behavior_mode_router.py'
-      - 'runtime/behavior_shadow_router.py'
+      - 'core/XIAOAI_BEHAVIOR_CORE_V1.md'
+      - 'BEHAVIOR_FREEZE_BASELINE_V1.md'
+      - 'runtime/**'
       - 'tests/golden/**'
-      - 'tests/runtime/fixtures/behavior_shadow_staging_v1.json'
-      - 'tests/runtime/fixtures/behavior_shadow_context_shift_staging_v1.json'
-      - 'tests/runtime/test_behavior_mode_router_v1.py'
-      - 'tests/runtime/test_behavior_mode_router_multiconflict_v1.py'
-      - 'tests/runtime/test_behavior_shadow_router_v1.py'
-      - 'tests/runtime/test_behavior_shadow_staging_v1.py'
-      - 'tests/runtime/test_behavior_shadow_context_shift_staging_v1.py'
-      - 'tests/runtime/test_golden_boundary_regression_v1.py'
-      - 'tests/conversation/chatgpt_brain_*.py'
-      - 'tests/conversation/live_candidate_adapter.py'
-      - 'tests/conversation/test_golden_conversational_suite_v1.py'
-      - 'tests/conversation/test_live_candidate_adapter_v1.py'
-      - 'tests/conversation/test_router_wording_regression_v1.py'
-      - 'tests/conversation/fixtures/golden_conversational_suite_v1.json'
-      - 'tests/conversation/fixtures/router_wording_suite_v1.json'
+      - 'tests/runtime/**'
+      - 'tests/conversation/**'
       - '.github/workflows/golden-regression-ci.yml'
 
 jobs:
@@ -53,6 +29,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify protected Behavior Logic is unchanged
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          git fetch --no-tags origin "$BASE_SHA"
+          PROTECTED=(
+            "core/XIAOAI_BEHAVIOR_CORE_V1.md"
+            "BEHAVIOR_FREEZE_BASELINE_V1.md"
+            "BEHAVIOR_MODE_ROUTER_V1.md"
+            "runtime/behavior_mode_router.py"
+          )
+          if ! git diff --quiet "$BASE_SHA" HEAD -- "${PROTECTED[@]}"; then
+            echo "ERROR: Behavior Logic protection triggered."
+            git diff --name-only "$BASE_SHA" HEAD -- "${PROTECTED[@]}"
+            exit 1
+          fi
+          echo "Behavior Logic protected files are unchanged."
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -62,6 +59,7 @@ jobs:
           python -m pytest -q
           tests/golden/test_golden_regression_mapping_v1.py
           tests/runtime/test_golden_boundary_regression_v1.py
+          tests/runtime/test_context_memory_runtime_v1.py
           tests/runtime/test_behavior_mode_router_v1.py
           tests/runtime/test_behavior_mode_router_multiconflict_v1.py
           tests/runtime/test_behavior_shadow_router_v1.py
