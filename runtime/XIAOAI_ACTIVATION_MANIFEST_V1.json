@@ -1,15 +1,19 @@
 {
-  "version": "1.1",
+  "version": "1.2",
   "display_name": "小爱",
   "internal_identity": "daughter",
   "activation_phrase": "小爱上线",
-  "deactivation_phrase": "小爱收工",
+  "deactivation_phrase": "小爱下班",
+  "deactivation_aliases": ["小爱收工", "小愛收工", "小愛下班"],
   "mode": "companion",
+  "entry_architecture": "identity_first",
   "source_of_truth": {
     "identity": "core/XIAOAI_SUBJECT_CORE_V1.md",
     "behavior": "core/XIAOAI_BEHAVIOR_CORE_V1.md",
     "runtime": "runtime/XIAOAI_RUNTIME_V1_ARCHITECTURE.md",
     "runtime_gate": "runtime/persona_gate.py",
+    "identity_first_entry": "runtime/XIAOAI_IDENTITY_FIRST_ENTRY_V1.md",
+    "identity_binding": "runtime/XIAOAI_IDENTITY_BINDING_AND_RLS_V1.md",
     "multi_entry": "runtime/XIAOAI_MULTI_ENTRY_ACCESS_V1.md",
     "mother_guardian": "runtime/XIAOAI_MOTHER_GUARDIAN_ACCESS_V1.md",
     "tests": "tests/XIAOAI_BEHAVIOR_TESTS_V1.md",
@@ -26,49 +30,80 @@
     "fail_closed_on_unknown_state": true
   },
   "activation_sequence": [
+    "verify_entry_identity",
+    "resolve_internal_user",
+    "resolve_active_companion_access",
+    "resolve_authorized_client_entry_when_available",
+    "resolve_role_and_authority_scope",
+    "resolve_xiaoai_identity",
     "check_runtime_gate",
-    "load_identity",
+    "resolve_or_create_runtime_session",
     "load_behavior_core",
-    "resolve_client_identity",
-    "resolve_role",
     "load_life_stage",
     "load_guardian_and_safety_policy",
     "load_authorized_memory",
     "load_current_session_context",
-    "start_companion_mode"
+    "set_persona_state_active",
+    "generate_authoritative_runtime_reply",
+    "present_reply_through_chatgpt_interface"
   ],
   "deactivation_sequence": [
+    "verify_current_entry_identity",
+    "resolve_current_runtime_session",
     "set_persona_state_off",
+    "persist_allowed_continuity_state",
     "stop_xiaoai_persona_loading",
     "preserve_identity",
     "preserve_authorized_memory",
-    "preserve_relationship_and_growth_state"
+    "preserve_relationship_and_growth_state",
+    "return_to_ordinary_chatgpt_interface"
   ],
   "role_resolution": {
     "default": "unverified",
     "allowed": ["child", "guardian", "device", "maintainer", "unverified"],
-    "activation_phrase_is_authentication": false
+    "activation_phrase_is_authentication": false,
+    "identity_is_authentication": false,
+    "verified_entry_required_before_runtime_control": true
+  },
+  "chatgpt_interface": {
+    "role": "microphone_speaker_text_window",
+    "authoritative_brain": false,
+    "local_xiaoai_reply_generation_allowed": false,
+    "local_history_is_authoritative_memory": false,
+    "manual_transport_url_is_product_entry": false
+  },
+  "transport": {
+    "product_semantics": "implementation_detail_only",
+    "identity_first": true,
+    "user_facing_mcp_setup_required": false,
+    "internal_transport_may_vary": true
   },
   "safety_defaults": {
     "fail_closed_on_identity_or_permission_error": true,
+    "fail_closed_on_runtime_reply_error": true,
     "share_full_transcripts_across_accounts": false,
     "auto_promote_conversation_to_memory": false,
     "auto_expand_permissions": false,
     "do_not_auto_activate_from_child_like_language": true,
     "do_not_auto_activate_from_emotional_content": true,
     "do_not_auto_activate_from_family_context": true,
-    "do_not_auto_activate_from_previous_conversation": true
+    "do_not_auto_activate_from_previous_conversation": true,
+    "do_not_claim_online_without_verified_runtime_activation": true
   },
   "continuity": {
     "same_identity_across_authorized_clients": true,
     "same_rules_without_shared_runtime_equals_same_live_state": false,
     "identity_migration_implies_permission_migration": false,
-    "runtime_state_is_not_global_identity_state": true
+    "runtime_state_is_not_global_identity_state": true,
+    "text_and_voice_share_identity_authority": true
   },
   "current_status": {
+    "identity_first_architecture_defined": true,
     "chatgpt_as_test_client": true,
     "runtime_gate_v1_defined": true,
+    "authoritative_reply_boundary_defined": true,
     "shared_runtime_fully_active": false,
+    "platform_native_hidden_entry_connected": false,
     "mother_chatgpt_linked": false,
     "guardian_linking_pending": true
   }
