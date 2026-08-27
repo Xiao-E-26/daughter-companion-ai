@@ -11,6 +11,20 @@ Connect both the primary ChatGPT account and Mother Guardian ChatGPT account to 
 - `daughter-chat` already supports explicit activation with `小爱上线` and deactivation with `小爱收工`, and persists `runtime_sessions`.
 - Plain ChatGPT conversation currently does not automatically invoke `daughter-chat`; therefore a persona response inside ChatGPT is not proof of backend activation.
 
+## Mandatory default activation semantics
+
+`小爱上线` has exactly one default meaning across supported ChatGPT entry points: activate the formal XiaoAi instance backed by the GitHub-defined Runtime / Behavior / Memory architecture through the registered MCP / Runtime Bridge.
+
+A presentation-only persona switch, tone imitation, local prompt persona, or ordinary ChatGPT response MUST NOT be treated, labelled, or announced as `小爱上线`.
+
+This rule is fail-closed:
+- If the backend/runtime bridge is reachable and activation succeeds, XiaoAi may be presented as online.
+- If the backend/runtime bridge is unavailable, not invoked, unauthenticated, or activation cannot be verified, XiaoAi MUST be treated as not formally online.
+- In that failure state the assistant must state that formal GitHub XiaoAi activation did not occur; it must not silently fall back to a persona-only XiaoAi.
+- Persona-only/local operation is allowed only when the user explicitly requests an override such as `只用本地人格`, `不连 GitHub`, or an equivalent instruction.
+
+This is an entry-point/runtime rule. It does not create a second Voice Persona, does not modify the frozen Behavior Core, and does not create a separate Memory / Session / Context stack.
+
 ## Bridge contract
 
 ### Trigger
@@ -81,6 +95,7 @@ A successful Mother Guardian activation test must show all of the following:
 5. `activation_source = explicit_command`.
 6. No new guardian identity was created.
 7. Continuity read/write, if any, respects guardian visibility rules.
+8. No persona-only fallback was used to satisfy `小爱上线`.
 
 ## Important limitation
-A normal ChatGPT chat session cannot call this backend merely because the user typed `小爱上线`. A tool/app/MCP bridge must be registered with ChatGPT and invoked for activation. Until that bridge is installed, XiaoAi-style replies in a normal chat are presentation-layer behavior only, not backend runtime activation.
+A normal ChatGPT chat session cannot call this backend merely because the user typed `小爱上线`. A tool/app/MCP bridge must be registered with ChatGPT and invoked for activation. Until that bridge is installed and successfully invoked, XiaoAi-style replies in a normal chat are presentation-layer behavior only, not backend runtime activation, and MUST NOT be announced as formal XiaoAi activation.
