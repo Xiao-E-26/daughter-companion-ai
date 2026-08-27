@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
 from runtime.context_builder import ContextBuilder
+from runtime.behavior_mode_router import RouterInput
+from runtime.behavior_shadow_router import BehaviorShadowRouter
 from runtime.decision_engine import DaughterDecisionEngine, DecisionInput
 from runtime.memory_manager import MemoryManager
 from runtime.model_adapter import ModelAdapter, ModelMessage, ModelRequest
@@ -36,6 +38,7 @@ class RuntimeRequest:
     event_type: str = "request"
     runtime_identity: str = DAUGHTER_RUNTIME_IDENTITY
     speaker_identity: str = "speaker_identity=unknown"
+    behavior_shadow_input: Optional[RouterInput] = None
 
 
 @dataclass(frozen=True)
@@ -55,6 +58,7 @@ class RuntimeResponse:
     memory_candidate: Optional[MemoryCandidate]
     context_snapshot: str = ""
     runtime_identity: str = DAUGHTER_RUNTIME_IDENTITY
+    shadow_behavior_route: Optional[Dict[str, Any]] = None
 
 
 class DaughterOrchestrator:
@@ -76,12 +80,14 @@ class DaughterOrchestrator:
         memory_manager: Optional[MemoryManager] = None,
         lesson_store: Optional[PersistentLessonStore] = None,
         context_builder: Optional[ContextBuilder] = None,
+        behavior_shadow_router: Optional[BehaviorShadowRouter] = None,
     ) -> None:
         self.model = model
         self.boundary = DaughterDecisionEngine()
         self.memory_manager = memory_manager or MemoryManager()
         self.lesson_store = lesson_store
         self.context_builder = context_builder or ContextBuilder()
+        self.behavior_shadow_router = behavior_shadow_router
 
     def handle(self, request: RuntimeRequest, history: Optional[List[ModelMessage]] = None) -> RuntimeResponse:
         self._assert_runtime_identity(request.runtime_identity)
@@ -121,6 +127,12 @@ class DaughterOrchestrator:
         )
         boundary = self.boundary.decide(decision_input).to_dict()
 
+        shadow_behavior_route = None
+        if self.behavior_shadow_router is not None:
+            shadow_behavior_route = self.behavior_shadow_router.observe(
+                request.behavior_shadow_input
+            ).to_dict()
+
         built_context = self.context_builder.build(
             current_facts=current_facts,
             memories=memories,
@@ -153,6 +165,7 @@ class DaughterOrchestrator:
             memory_candidate=memory_candidate,
             context_snapshot=context_text,
             runtime_identity=DAUGHTER_RUNTIME_IDENTITY,
+            shadow_behavior_route=shadow_behavior_route,
         )
 
     @staticmethod

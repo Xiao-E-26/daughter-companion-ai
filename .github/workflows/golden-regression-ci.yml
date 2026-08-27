@@ -5,9 +5,11 @@ on:
     paths:
       - 'BEHAVIOR_MODE_ROUTER_*.md'
       - 'runtime/behavior_mode_router.py'
+      - 'runtime/behavior_shadow_router.py'
       - 'tests/golden/**'
       - 'tests/runtime/test_behavior_mode_router_v1.py'
       - 'tests/runtime/test_behavior_mode_router_multiconflict_v1.py'
+      - 'tests/runtime/test_behavior_shadow_router_v1.py'
       - 'tests/runtime/test_golden_boundary_regression_v1.py'
       - 'tests/conversation/chatgpt_brain_*.py'
       - 'tests/conversation/live_candidate_adapter.py'
@@ -23,9 +25,11 @@ on:
     paths:
       - 'BEHAVIOR_MODE_ROUTER_*.md'
       - 'runtime/behavior_mode_router.py'
+      - 'runtime/behavior_shadow_router.py'
       - 'tests/golden/**'
       - 'tests/runtime/test_behavior_mode_router_v1.py'
       - 'tests/runtime/test_behavior_mode_router_multiconflict_v1.py'
+      - 'tests/runtime/test_behavior_shadow_router_v1.py'
       - 'tests/runtime/test_golden_boundary_regression_v1.py'
       - 'tests/conversation/chatgpt_brain_*.py'
       - 'tests/conversation/live_candidate_adapter.py'
@@ -52,6 +56,7 @@ jobs:
           tests/runtime/test_golden_boundary_regression_v1.py
           tests/runtime/test_behavior_mode_router_v1.py
           tests/runtime/test_behavior_mode_router_multiconflict_v1.py
+          tests/runtime/test_behavior_shadow_router_v1.py
           tests/conversation/test_golden_conversational_suite_v1.py
           tests/conversation/test_live_candidate_adapter_v1.py
           tests/conversation/test_router_wording_regression_v1.py
