@@ -68,6 +68,17 @@ def test_expired_verified_memory_is_excluded_and_marked_expired():
     assert manager.store.get("expired").status == MemoryStatus.EXPIRED
 
 
+def test_z_suffix_expiry_is_supported_and_expires():
+    manager = MemoryManager()
+    past = (datetime.now(timezone.utc) - timedelta(minutes=1)).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    record = _memory("expired-z", MemoryStatus.CANDIDATE, expires_at=past)
+    manager.propose(record)
+    manager.verify("expired-z", ["verified-source:second-check"])
+
+    assert manager.retrieve("child-1") == []
+    assert manager.store.get("expired-z").status == MemoryStatus.EXPIRED
+
+
 def test_future_expiry_remains_retrievable():
     manager = MemoryManager()
     future = (datetime.now(timezone.utc) + timedelta(days=1)).isoformat()
