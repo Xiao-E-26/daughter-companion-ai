@@ -1,9 +1,0 @@
-{
-  "version": 2,
-  "cleanUrls": true,
-  "rewrites": [
-    { "source": "/", "destination": "/apps/first_connection/index.html" },
-    { "source": "/device", "destination": "/apps/device/index.html" },
-    { "source": "/device/", "destination": "/apps/device/index.html" }
-  ]
-}
