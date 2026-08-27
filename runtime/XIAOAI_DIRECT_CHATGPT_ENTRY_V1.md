@@ -5,142 +5,154 @@ Project: `daughter-companion-ai`
 
 ## Goal
 
-Use ChatGPT itself as the unified conversational brain for both Text and native Voice while preserving exactly one XiaoAi backend identity, runtime state, memory, continuity, behavior source, and safety authority.
+Use ChatGPT only as the unified client window for both Text and native Voice while preserving exactly one XiaoAi conversational brain, one backend identity, one runtime, one memory/session authority, and one behavior source.
 
-The runtime transport layer must stay as thin as possible. It provides verified XiaoAi context/state to ChatGPT; it must not become a second conversational brain.
-
-## Current verified runtime baseline
-
-The deployed Supabase Edge Function `xiaoai-mcp-runtime` v10 already operates in `chatgpt_brain_context_gateway` mode.
-
-Its verified semantics are:
-- ChatGPT is the conversational brain.
-- `xiaoai_runtime` supplies authoritative identity / runtime / continuity context.
-- `provider_api_used_for_reply = false`.
-- `小爱上线` moves the verified session to `ACTIVE` and requires greeting the verified child name.
-- `小爱下班` is the canonical shutdown and moves the current session to `OFF`.
-- normal XiaoAi turns require the runtime context before ChatGPT answers locally.
-
-Therefore the target is not `ChatGPT -> daughter-chat -> another model reply`.
-
-The target is:
-
-`ChatGPT conversation brain -> thin XiaoAi runtime context/state gateway -> ChatGPT conversation brain`
+ChatGPT must not become the XiaoAi conversational brain. It is only the interface surface that receives user input and presents XiaoAi output.
 
 ## Core invariant
 
-`One XiaoAi identity -> One authoritative runtime/context source -> One ChatGPT conversational brain -> Multiple input/output modes`
+`One XiaoAi identity -> One XiaoAi Runtime brain -> Multiple ChatGPT interface modes`
 
 Text and Voice are interface modes only. They must not create separate XiaoAi personas, memories, sessions, behavior sources, or conversational brains.
+
+## Authoritative role split
+
+### ChatGPT
+ChatGPT is interface only:
+- Text input/output window;
+- native Voice speech input/output window;
+- transport surface into the XiaoAi backend/runtime;
+- presentation of the backend-produced XiaoAi reply.
+
+ChatGPT must not:
+- invent XiaoAi persona behavior locally;
+- become the authoritative conversational brain;
+- use local chat history as durable XiaoAi memory;
+- claim XiaoAi is online without verified runtime activation;
+- silently answer as XiaoAi if backend/runtime access fails.
+
+### XiaoAi Runtime
+XiaoAi Runtime is the authoritative conversational brain. It owns the actual XiaoAi response pipeline and must resolve:
+- identity and authorization;
+- persona/runtime state;
+- session and continuity;
+- durable memory context;
+- relationship context;
+- behavior / policy execution;
+- final XiaoAi reply.
+
+### GitHub
+GitHub remains the source of truth for XiaoAi behavior rules, routing rules, policy, architecture, tests, and executable runtime code.
+
+### Supabase
+Supabase remains the runtime authority for authenticated identity, durable memory, session, persona/runtime state, continuity, relationship/authority context, and verified client binding.
 
 ## Target paths
 
 ### ChatGPT Text
 
 ```text
-ChatGPT Text
-  -> XiaoAi runtime context/state gateway
-  -> Supabase verified identity / persona state / continuity / memory authority
-  -> GitHub-defined behavior + policy contract
-  -> same ChatGPT conversational brain
-  -> Text Output
+User Text
+  -> ChatGPT Text window
+  -> XiaoAi Runtime
+  -> GitHub behavior / policy
+  -> Supabase identity / memory / session / context
+  -> XiaoAi final reply
+  -> ChatGPT Text window
 ```
 
 ### ChatGPT native Voice
 
 ```text
-ChatGPT Voice
-  -> ChatGPT native speech understanding
-  -> same XiaoAi runtime context/state gateway
-  -> same Supabase verified identity / persona state / continuity / memory authority
-  -> same GitHub-defined behavior + policy contract
-  -> same ChatGPT conversational brain
+User Voice
+  -> ChatGPT native speech interface
+  -> XiaoAi Runtime
+  -> GitHub behavior / policy
+  -> Supabase identity / memory / session / context
+  -> XiaoAi final reply
   -> ChatGPT native voice playback
 ```
 
-ChatGPT Voice is only another I/O mode. It must not own a separate XiaoAi persona, memory, relationship state, safety policy, or durable session authority.
+ChatGPT Voice is only the ears and mouth. It must not own XiaoAi persona, memory, relationship state, safety policy, or durable session authority.
 
-## Runtime gateway role
+## One XiaoAi across Text and Voice
 
-The runtime gateway is allowed to:
-- authenticate the current user;
-- resolve the authorized XiaoAi / daughter identity;
-- resolve the verified child conversational name;
-- read and update `persona_state`;
-- bind to the verified ChatGPT client connection;
-- read selective continuity state;
-- expose role / authority scope;
-- return structured runtime directives and failure state.
+Text and Voice must resolve to the same authenticated XiaoAi identity and the same XiaoAi Runtime.
 
-The runtime gateway must not:
-- become a second chat model;
-- independently invent XiaoAi replies for normal conversation;
-- maintain a second persona;
-- create a second memory authority;
-- replace ChatGPT as the active conversational brain;
-- silently claim activation when the runtime call did not succeed.
-
-## Identity and continuity
-
-Both ChatGPT Text and Voice must resolve to the same authenticated XiaoAi backend identity.
-
-The authoritative durable identity / memory / continuity state remains in Supabase. ChatGPT local conversation history may provide transient conversational context but is not the durable source of truth.
-
-Switching Text -> Voice -> Text must not create a new XiaoAi identity or independent persona state.
+Switching Text -> Voice -> Text must not:
+- create another XiaoAi identity;
+- create another persona;
+- create another memory store;
+- create another behavior prompt;
+- reset the authoritative runtime unless the backend explicitly requires a new session.
 
 ## Startup / shutdown
 
-`小爱上线` from either Text or Voice must reach the same runtime gateway and produce a verified `ACTIVE` state before ChatGPT presents XiaoAi as online.
+`小爱上线` from either Text or Voice must reach the same XiaoAi Runtime activation path.
 
-After successful activation, ChatGPT must greet the verified child name returned by runtime context.
+The system may present XiaoAi as online only after the runtime confirms the required authenticated identity/session/persona state.
 
-If the runtime gateway cannot be called, authentication fails, or the runtime state is not verified, ordinary ChatGPT must not mimic XiaoAi or claim successful activation.
+After successful activation, the XiaoAi Runtime must produce the startup reply according to the existing greeting policy, including the verified child conversational name from the private source of truth.
 
-`小爱下班` from either Text or Voice must reach the same runtime gateway, move the current session to `OFF`, and stop XiaoAi persona behavior.
+If runtime access, authentication, session loading, or required state fails:
+- ChatGPT must report failure;
+- ChatGPT must not imitate XiaoAi;
+- ChatGPT must not generate a substitute XiaoAi reply locally;
+- local conversation history must not be used as fallback authority.
 
-## GitHub and Supabase roles
+`小爱下班` from either Text or Voice must reach the same runtime shutdown path, persist required state, set the XiaoAi interaction state to OFF, and return the interface to ordinary ChatGPT mode.
 
-GitHub remains the source of truth for XiaoAi behavior, routing, policy, architecture, and executable project code.
+## Transport boundary
 
-Supabase remains the runtime authority for authenticated identity, durable memory, persona/runtime state, continuity, relationship/authority context, and verified ChatGPT client binding.
+The transport mechanism between ChatGPT and XiaoAi Runtime may use MCP or another supported ChatGPT integration protocol under the hood.
 
-ChatGPT remains the conversational brain.
+Transport is infrastructure only. It is not XiaoAi's brain, persona, memory, or behavior authority.
 
-## Transport reality
+Therefore the product-level invariant is:
 
-For a ChatGPT custom app/tool integration, the supported tool transport may still be MCP under the hood.
+`ChatGPT = window. XiaoAi Runtime = brain.`
 
-This contract therefore does not require deleting MCP as a protocol. Instead, it requires that MCP be reduced to a thin context/state transport role and not treated as a second XiaoAi runtime brain.
+The presence of MCP transport does not mean there are two XiaoAi systems.
 
-The product-level user experience should remain:
+## Existing runtime mismatch that must be corrected before cutover
 
-`One ChatGPT -> One XiaoAi -> Text and Voice are two modes of the same relationship.`
+The currently deployed `xiaoai-mcp-runtime` v10 contains a `chatgpt_brain_context_gateway` design in which ChatGPT is instructed to answer locally. That design is not the target architecture defined here.
+
+Before production cutover, the runtime must be changed so that:
+- the backend/runtime produces the authoritative XiaoAi final reply;
+- ChatGPT does not locally invent the XiaoAi reply;
+- Text and Voice both receive the same backend-produced response semantics;
+- the existing identity / session / continuity protections are preserved;
+- frozen Behavior Core protections remain intact;
+- rollback remains available.
+
+This mismatch must be resolved through an independent reviewed change; this architecture document alone does not modify production runtime behavior.
 
 ## Voice capability gate
 
-This architecture is not considered fully implemented until ChatGPT native Voice is proven to invoke the same XiaoAi runtime gateway used by Text.
+Native Voice is not considered connected until runtime evidence proves that Voice can use the same XiaoAi Runtime path as Text.
 
-Before Voice is accepted as connected, runtime evidence must show that Voice can:
-1. invoke `xiaoai_runtime` for `小爱上线`;
+Acceptance requires evidence that Voice can:
+1. invoke the same runtime activation path for `小爱上线`;
 2. carry the same authenticated user context;
-3. resolve the same XiaoAi / daughter identity;
-4. observe the same `persona_state`;
-5. preserve the same continuity authority;
-6. invoke the runtime again for normal XiaoAi turns when required;
-7. invoke `小爱下班` and verify `OFF`;
+3. resolve the same XiaoAi identity;
+4. load the same session / memory / continuity authority;
+5. receive the backend-produced XiaoAi reply;
+6. continue normal conversation through the same runtime;
+7. invoke `小爱下班` through the same shutdown path;
 8. fail closed rather than locally imitate XiaoAi when runtime access is unavailable.
 
 ## Shadow acceptance tests
 
-The unified ChatGPT Text / Voice path passes only if all of the following are proven with runtime evidence:
-- Text `小爱上线` -> verified `ACTIVE`.
-- Voice `小爱上线` -> verified `ACTIVE` through the same gateway.
-- Text and Voice resolve to the same XiaoAi backend identity.
-- Text -> Voice -> Text preserves continuity.
-- Text and Voice use the same behavior/persona contract.
-- normal Voice turns call the runtime context gateway when the contract requires it.
+The unified Text / Voice design passes only if all of the following are proven with runtime evidence:
+- Text `小爱上线` -> verified backend activation and backend-produced greeting.
+- Voice `小爱上线` -> same backend activation and greeting semantics.
+- Text and Voice resolve to the same XiaoAi identity.
+- Text -> Voice -> Text preserves backend continuity.
+- Text and Voice execute the same behavior/persona contract.
+- final XiaoAi replies are produced by XiaoAi Runtime, not independently by ChatGPT.
 - backend/runtime failure produces explicit failure and no local XiaoAi imitation.
-- `小爱下班` works identically in Text and Voice and results in `OFF`.
+- `小爱下班` works identically in Text and Voice and produces verified OFF state.
 
 ## Optional STT / TTS modules
 
@@ -150,6 +162,9 @@ They are not required for ChatGPT native Voice and must not be inserted into the
 
 ## Production cutover rule
 
-Do not declare native Voice connected until actual runtime telemetry proves that Voice can invoke the same `xiaoai_runtime` context/state gateway as Text.
+Do not declare Text/Voice unified production-ready until:
+- the deployed runtime no longer relies on ChatGPT as the XiaoAi conversational brain;
+- the backend/runtime produces authoritative XiaoAi replies;
+- Text and native Voice are both proven to use that same runtime with telemetry.
 
-`No verified runtime call = no XiaoAi activation.`
+`No verified XiaoAi Runtime reply = no XiaoAi response.`
