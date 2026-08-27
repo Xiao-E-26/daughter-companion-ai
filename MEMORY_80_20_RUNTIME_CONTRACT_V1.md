@@ -4,11 +4,14 @@ Status: ACTIVE RUNTIME CONTRACT
 Date: 2026-08-26
 Project: `daughter-companion-ai`
 Authoritative memory store: `memory_private.*`
-Policy owner: `DURABLE_MEMORY_POLICY_V1.md`
+Primary memory/privacy policy owner: `MEMORY_AND_PRIVACY_POLICY_V1.md`
+Durable-memory specialization: `DURABLE_MEMORY_POLICY_V1.md`
 
 ## Purpose
 
-Turn the 80/20 durable-memory philosophy into an executable decision model without creating a second memory system.
+Turn the 80/20 durable-memory philosophy into an executable decision model without creating a second memory system or a second memory policy authority.
+
+This file is a runtime execution contract. It does not own the global memory/privacy policy domain. Where policy interpretation is required, `MEMORY_AND_PRIVACY_POLICY_V1.md` is primary; `DURABLE_MEMORY_POLICY_V1.md` specializes durable-memory selection; this contract maps those rules into runtime behavior.
 
 Core principle:
 
@@ -237,9 +240,9 @@ Canonical memory flow:
 
 ## 14. Anti-Duplication Rule
 
-Do not introduce another durable-memory table, identity layer, visibility model, or promotion engine unless the existing private memory architecture is proven insufficient.
+Do not introduce another durable-memory table, identity layer, visibility model, promotion engine, or memory policy owner unless the existing architecture is proven insufficient.
 
-New requirements should first be mapped onto the existing Memory Core.
+New requirements should first be mapped onto the existing Memory Core and policy hierarchy.
 
 ## Summary
 
