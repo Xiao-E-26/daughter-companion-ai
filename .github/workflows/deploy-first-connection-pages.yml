@@ -1,10 +1,10 @@
-name: Deploy First Connection to GitHub Pages
+name: Deploy XiaoAi Apps to GitHub Pages
 
 on:
   push:
     branches: [main]
     paths:
-      - "apps/first_connection/**"
+      - "apps/**"
       - ".github/workflows/deploy-first-connection-pages.yml"
   workflow_dispatch:
 
@@ -30,10 +30,10 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload First Connection site
+      - name: Upload XiaoAi apps
         uses: actions/upload-pages-artifact@v3
         with:
-          path: apps/first_connection
+          path: apps
 
       - name: Deploy to GitHub Pages
         id: deployment
