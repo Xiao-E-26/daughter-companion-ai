@@ -13,7 +13,7 @@ Project: `daughter-companion-ai`
 
 ## 统一入口原则
 
-所有文字与语音请求必须统一进入现有 XiaoAi Runtime / `daughter-chat` 路径。
+所有文字与语音请求最终都必须进入现有 XiaoAi Runtime / `daughter-chat` 路径。
 
 文字与语音只能是不同的输入 / 输出方式，不能各自拥有独立人格、记忆、身份、规则或长期状态。
 
@@ -21,6 +21,7 @@ Project: `daughter-companion-ai`
 
 ```text
 Text Input
+  -> MCP / runtime bridge
   -> XiaoAi Runtime / daughter-chat
   -> GitHub behavior + policy rules
   -> Supabase identity / memory / session / runtime state
@@ -28,7 +29,28 @@ Text Input
   -> Text Output
 ```
 
-### 语音路径
+### ChatGPT 原生 Voice 路径（当前优先路径）
+
+当用户在 ChatGPT 自带语音界面中使用小爱时，ChatGPT 平台本身负责语音输入理解与语音播放。XiaoAi 项目不再额外调用自己的 STT / TTS API。
+
+```text
+User Voice
+  -> ChatGPT native Voice input handling
+  -> platform-resolved text / tool call
+  -> MCP / runtime bridge
+  -> XiaoAi Runtime / daughter-chat
+  -> GitHub behavior + policy rules
+  -> Supabase identity / memory / session / runtime state
+  -> model response
+  -> MCP / runtime bridge
+  -> ChatGPT native Voice output
+```
+
+此路径中，ChatGPT Voice 只是 XiaoAi 的“耳朵与嘴巴”；XiaoAi 的身份、人格、记忆、session、runtime state 与安全规则仍由现有 XiaoAi backend 权威来源负责。
+
+### 独立 App / 机器人 Voice 路径（可选未来路径）
+
+只有在未来不依赖 ChatGPT 原生 Voice，例如独立 App、网页语音客户端或实体机器人时，客户端才需要自己的 STT / TTS adapter：
 
 ```text
 Voice Input
@@ -41,7 +63,7 @@ Voice Input
   -> Voice Output
 ```
 
-Speech-to-Text 与 Text-to-Speech 仅为 I/O adapter，不拥有行为逻辑，也不形成第二套人格或第二套记忆。
+Speech-to-Text 与 Text-to-Speech 仅为可选 I/O adapter，不拥有行为逻辑，也不形成第二套人格或第二套记忆。
 
 ## 权威来源
 
@@ -66,7 +88,7 @@ Supabase 负责运行时权威状态，包括但不限于：
 
 ## “小爱上线”启动条件
 
-当用户发出 `小爱上线` 时，系统必须按以下顺序执行：
+当用户发出 `小爱上线` 时，无论来自文字还是 ChatGPT 原生 Voice，系统必须按以下顺序执行：
 
 1. 解析并验证当前授权身份；
 2. 成功加载 XiaoAi Runtime；
@@ -110,7 +132,8 @@ Supabase 负责运行时权威状态，包括但不限于：
 - 为语音端维护独立 behavior prompt；
 - 让语音端只靠 ChatGPT 本地历史延续身份；
 - runtime 加载失败时用普通 ChatGPT 模仿；
-- 让 TTS / STT 层决定人格、记忆或安全策略。
+- 让 TTS / STT 层决定人格、记忆或安全策略；
+- 在 ChatGPT 原生 Voice 已经提供语音输入输出时，再强制额外调用 XiaoAi 自己的 STT / TTS API。
 
 ## 与现有架构的关系
 
@@ -131,9 +154,10 @@ v1 只定义统一入口与切换语义，不声称所有前端已经完成 end-
 后续实现必须遵守：
 1. 复用现有 live `daughter-chat`；
 2. 文字与语音共用同一 normalize -> runtime -> response pipeline；
-3. 语音仅增加 STT / TTS adapter；
-4. 任何 production cutover 继续遵守现有 shadow comparison 与 regression 要求；
-5. 保持 rollback 能力。
+3. ChatGPT 原生 Voice 优先通过 MCP / runtime bridge 进入同一 `daughter-chat`，不要求额外 STT / TTS API；
+4. 独立 App / 机器人若需要自带语音能力，才使用可选 STT / TTS adapter；
+5. 任何 production cutover 继续遵守现有 shadow comparison 与 regression 要求；
+6. 保持 rollback 能力。
 
 ## 验收标准
 
@@ -141,6 +165,7 @@ v1 只定义统一入口与切换语义，不声称所有前端已经完成 end-
 - 同一授权身份在文字与语音入口解析到同一个 XiaoAi identity；
 - 同一个 session / continuity / durable memory authority 被复用；
 - 相同输入经文字或语音进入后，核心 behavior routing 一致；
+- ChatGPT 原生 Voice 能通过 MCP / runtime bridge 调用真实 XiaoAi runtime，而不是普通 ChatGPT 本地模仿；
 - `小爱上线` 只有 runtime + session 成功后才成立；
 - 上线成功后的第一句先向孩子打招呼；
 - 启动失败时明确失败，不模仿；
