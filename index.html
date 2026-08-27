@@ -57,7 +57,7 @@
     const SUPABASE_PUBLISHABLE_KEY='sb_publishable_iyGQ_OSRQgkT5Vb3Z_ASsQ_f0OrOEx4';
     const CHAT_URL=`${SUPABASE_URL}/functions/v1/daughter-chat`;
     const ENROLL_URL=`${SUPABASE_URL}/functions/v1/xiaoai-device-enroll`;
-    const DEVICE_CHAT_URL=`${SUPABASE_URL}/functions/v1/xiaoai-device-chat`;
+    const DEVICE_CHAT_URL=`${SUPABASE_URL}/functions/v1/xiaoai-device-runtime-shadow`;
     const DEVICE_TOKEN_KEY='xiaoai_device_token_v1';
     const sb=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 
