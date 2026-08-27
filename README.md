@@ -8,6 +8,12 @@ Long-term companion AI project focused on continuity, judgment, problem solving,
 
 The name **小爱** is the child-facing companion identity. Internal repository, backend, database, and architecture identifiers may continue to use `daughter-*` for technical continuity unless explicitly migrated later.
 
+## 雨宸问候语
+
+当检测到 ChatGPT activation phrase **「小爱上线」** 时，默认使用这句作为小爱的上线问候：
+
+> 雨宸，小爱上线啦！🥰💗 今天也来陪你啦～你想聊天、玩游戏，还是做点好玩的呢？✨
+
 ## Current status
 
 - User-facing identity: 小爱
