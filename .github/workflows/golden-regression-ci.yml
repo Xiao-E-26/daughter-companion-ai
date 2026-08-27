@@ -65,6 +65,8 @@ jobs:
           tests/runtime/test_behavior_shadow_router_v1.py
           tests/runtime/test_behavior_shadow_staging_v1.py
           tests/runtime/test_behavior_shadow_context_shift_staging_v1.py
+          tests/runtime/test_read_only_runtime_context_v1.py
+          tests/runtime/test_shadow_runtime_comparator_v1.py
           tests/conversation/test_golden_conversational_suite_v1.py
           tests/conversation/test_live_candidate_adapter_v1.py
           tests/conversation/test_router_wording_regression_v1.py
