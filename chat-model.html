@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#fff7fb">
+<title>小爱聊天模型</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:#f7f5fb;color:#2f2a35}
+.app{height:100dvh;max-width:560px;margin:0 auto;display:flex;flex-direction:column;background:#fff;box-shadow:0 0 30px rgba(0,0,0,.06)}
+.header{padding:calc(env(safe-area-inset-top) + 14px) 16px 14px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #eee7f0;background:#fff}
+.avatar{width:46px;height:46px;border-radius:16px;background:#ffd9ea;display:grid;place-items:center;font-size:24px}.title{font-weight:800;font-size:20px}.status{font-size:12px;color:#8a7f8f;margin-top:2px}.dot{display:inline-block;width:7px;height:7px;background:#66b77a;border-radius:50%;margin-right:5px}
+.chat{flex:1;overflow:auto;padding:18px 14px 12px;background:linear-gradient(#fffafc,#f8f7fb)}
+.row{display:flex;margin:10px 0}.row.me{justify-content:flex-end}.bubble{max-width:82%;padding:12px 14px;border-radius:18px;line-height:1.5;font-size:16px;box-shadow:0 4px 15px rgba(0,0,0,.04)}.bot .bubble{background:#fff;border:1px solid #eee6f0;border-bottom-left-radius:6px}.me .bubble{background:#2f2a35;color:white;border-bottom-right-radius:6px}
+.quick{display:flex;gap:8px;overflow:auto;padding:10px 12px;border-top:1px solid #f1ebf2;background:#fff}.quick button{white-space:nowrap;border:1px solid #eadfea;background:#fff7fb;color:#665b6b;border-radius:999px;padding:9px 12px;font-size:13px}
+.inputbar{display:flex;gap:8px;padding:10px 12px calc(env(safe-area-inset-bottom) + 10px);border-top:1px solid #ece5ee;background:#fff}.inputbar input{flex:1;min-width:0;border:1px solid #e5dce7;border-radius:20px;padding:12px 14px;font-size:16px;outline:none}.send{border:0;border-radius:18px;background:#2f2a35;color:#fff;padding:0 16px;font-size:18px}
+.note{font-size:11px;color:#9a909e;text-align:center;padding:5px 10px;background:#fff}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="avatar">🌷</div>
+    <div><div class="title">小爱</div><div class="status"><span class="dot"></span>模型预览 · 不连接后台</div></div>
+  </div>
+  <div class="chat" id="chat">
+    <div class="row bot"><div class="bubble">雨宸，你好呀 👋 我是小爱。今天想和我聊什么呢？</div></div>
+  </div>
+  <div class="quick">
+    <button onclick="quick('今天发生了一件事')">今天发生了一件事</button>
+    <button onclick="quick('帮我记住这件事')">帮我记住</button>
+    <button onclick="quick('我想玩一个小游戏')">我想玩</button>
+    <button onclick="quick('我需要帮助')">我需要帮助</button>
+  </div>
+  <div class="inputbar">
+    <input id="input" placeholder="跟小爱说句话…" autocomplete="off">
+    <button class="send" onclick="sendMsg()">➤</button>
+  </div>
+  <div class="note">UI Model v1 · 所有回复只在这页模拟，不会保存任何资料</div>
+</div>
+<script>
+const chat=document.getElementById('chat'), input=document.getElementById('input');
+function add(text,who){const row=document.createElement('div');row.className='row '+who;const b=document.createElement('div');b.className='bubble';b.textContent=text;row.appendChild(b);chat.appendChild(row);chat.scrollTop=chat.scrollHeight}
+function reply(t){let r='我在听 😊 你可以慢慢告诉我。';if(t.includes('记住'))r='好呀，这里只是模型预览，所以我现在不会真的保存。不过以后正式连接后，小爱可以在你明确说“帮我记住”时再保存。';else if(t.includes('帮助')||t.includes('害怕')||t.includes('欺负'))r='我在这里陪你。你先告诉我发生了什么；如果你现在有危险，要马上去找身边信任的大人。';else if(t.includes('玩'))r='好呀 😄 我们可以玩猜谜、讲笑话，或者故事接龙。你想选哪一个？';else if(t.includes('今天'))r='好呀，跟我说说今天发生了什么。我想听。';setTimeout(()=>add(r,'bot'),450)}
+function sendMsg(){const t=input.value.trim();if(!t)return;add(t,'me');input.value='';reply(t)}
+function quick(t){input.value=t;sendMsg()}
+input.addEventListener('keydown',e=>{if(e.key==='Enter')sendMsg()});
+</script>
+</body>
+</html>
