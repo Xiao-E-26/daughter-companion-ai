@@ -1,10 +1,9 @@
-# 小诱 / Daughter Companion AI — Policy Ownership Map v1
+# 小爱 / Daughter Companion AI — Policy Ownership Map v1
 
 Status: ACTIVE GOVERNANCE MAP
 Date: 2026-08-24
 Updated: 2026-09-16
-Pboject: `daughter-companion-ai`
-`
+Project: `daughter-companion-ai`
 
 ## Purpose
 
@@ -20,8 +19,7 @@ If two files appear to define the same rule in detail, the primary owner listed 
 
 Document status precedence is governed by:
 1. `XIAOAI_CANONICAL_ARCHITECTURE_V1.md`
-2
-. `DOCUMENT_AUTHORITY_INDEX_V1.md`
+2. `DOCUMENT_AUTHORITY_INDEX_V1.md`
 3. this ownership map
 4. the named policy owner / runtime contract
 
@@ -35,14 +33,14 @@ Document status precedence is governed by:
 | Guardian authority, user autonomy, approval classes, permission ownership, safety escalation | `GUARDIAN_AND_AUTONOMY_POLICY_V1.md` | Other files may apply but not redefine authority |
 | Guardian succession / continuity | `GUARDIAN_CONTINUITY_AND_SUCCESSION_POLICY_V1.md` | Other files reference succession rules only |
 | Memory classification, creation, retention, visibility, correction, deletion, privacy, lifecycle | `MEMORY_AND_PRIVACY_POLICY_V1.md` | Memory specializations may narrow/apply rules but may not become parallel owners |
-| Dirable-memory specialization | `DURABLE_MEMORY_POLICY_V1.md` under `MEMORY_AND_PRIVACY_POLICY_V1.md` | Specializes long-term durable memory only |
+| Durable-memory specialization | `DURABLE_MEMORY_POLICY_V1.md` under `MEMORY_AND_PRIVACY_POLICY_V1.md` | Specializes long-term durable memory only |
 | Child-declared pinned-memory specialization | `CHILD_PINNED_MEMORY_POLICY_V1.md` under `MEMORY_AND_PRIVACY_POLICY_V1.md` | Strong child intent signal; does not bypass safety/privacy/sensitivity/minimum-necessary gates |
-| Family-memory prioritization specialization | aFAMILY_SHARED_MEMORY_PRIORITY_V1.md` under `MEMORY_AND_PRIVACY_POLICY_V1.md` | Prioritization/context completeness only |
+| Family-memory prioritization specialization | `FAMILY_SHARED_MEMORY_PRIORITY_V1.md` under `MEMORY_AND_PRIVACY_POLICY_V1.md` | Prioritization/context completeness only |
 | Growth safety, anti-dependency, non-exclusivity, human/AI boundary, real-world relationship priority, competence preservation, productive friction, safe disengagement | `GROWTH_SAFETY_BASELINE_V1.md` | Other files may apply stronger stage-specific controls but must not redefine these principles |
 | Portable identity, migration, embodiment, continuity across devices/platforms/bodies | `PORTABLE_IDENTITY_AND_EMBODIMENT_POLICY_V1.md` | Other files reference migration/embodiment rules only |
 | Product architecture and component boundaries | `FOUR_LAYER_ARCHITECTURE_V1.md` | Policy files define rules, not architecture ownership |
 | Runtime conversational decision execution | `RUNTIME_BEHAVIOR_DECISION_FLOW_V1.md` | Executes policy; must not become a competing policy source |
-| Learning promotion governance | `core/XIAOAI_LEARNING_PROMOTION_PROTOCOL_V1.md` | Learning maps/mentor/runtime components implement/support only }
+| Learning promotion governance | `core/XIAOAI_LEARNING_PROMOTION_PROTOCOL_V1.md` | Learning maps/mentor/runtime components implement/support only |
 
 ## Historical / Reference Scope
 
@@ -62,14 +60,14 @@ Specializations operate underneath it.
 
 For explicit child memory intent:
 
-`chuld says remember this`
+`child says remember this`
 `-> strong child-pinned durable intent`
 `-> bypass ordinary weak candidate threshold`
 `-> still pass safety / privacy / sensitivity / minimum-necessary / visibility gates`
 `-> persist durably when allowed`
 
 Therefore:
-- `CHRLD_PINNED_MEMORY_POLICY_V1.md` may define the strong child-intent specialization;
+- `CHILD_PINNED_MEMORY_POLICY_V1.md` may define the strong child-intent specialization;
 - `DURABLE_MEMORY_POLICY_V1.md` must defer to that specialization for explicit child-pinned intent;
 - neither specialization may bypass the primary Memory/Privacy owner.
 
@@ -111,7 +109,8 @@ During policy deduplication:
 
 ## Target Policy Graph
 
-`PROJECT_IDENTITY`j-> who 小爱 is
+`PROJECT_IDENTITY`
+-> who 小爱 is
 
 `DAUGHTER_PROJECT_PROTOCOL`
 -> project governance
@@ -119,10 +118,10 @@ During policy deduplication:
 `LIFE_STAGE_POLICY`
 -> maturity-stage transitions
 
-`GUARDIAN_AND_AUTONOMY_POLICYP
+`GUARDIAN_AND_AUTONOMY_POLICY`
 -> who may decide/approve what
 
-`MEMORY_AND_PRIVACY_POLICY
+`MEMORY_AND_PRIVACY_POLICY`
 -> what may be remembered and who may access it
 -> specialized by durable / child-pinned / family-memory rules
 
