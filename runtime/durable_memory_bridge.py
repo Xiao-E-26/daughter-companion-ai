@@ -22,6 +22,10 @@ class DurableMemoryIntent:
     idempotency_key: str
     sensitivity: str = "low"
     disclosure_scope: str = "subject_only"
+    privacy_gate_passed: bool = False
+    sensitivity_gate_passed: bool = False
+    minimum_necessary_passed: bool = False
+    visibility_gate_passed: bool = False
 
 
 @dataclass(frozen=True)
@@ -36,12 +40,13 @@ class DurableMemoryTransport(Protocol):
 
 
 class DurableMemoryBridge:
-    """Dormant bridge for durable autobiographical memory.
+    """Fail-closed bridge for explicit child-pinned durable autobiographical memory.
 
     Safety posture:
     - default gate is OFF;
     - ordinary conversation and inferred candidates never persist through this bridge;
     - even when enabled, only verified child-direct long-term memory intent may write;
+    - explicit policy gates must all pass before transport is called;
     - transport implementation is injected separately, so adding this bridge does not
       itself enable Supabase writes.
     """
@@ -79,6 +84,21 @@ class DurableMemoryBridge:
         if not intent.idempotency_key.strip():
             return DurableMemoryResult(False, "missing_idempotency_key")
 
+        if not intent.summary.strip():
+            return DurableMemoryResult(False, "empty_summary")
+
+        if not intent.privacy_gate_passed:
+            return DurableMemoryResult(False, "privacy_gate_not_passed")
+
+        if not intent.sensitivity_gate_passed:
+            return DurableMemoryResult(False, "sensitivity_gate_not_passed")
+
+        if not intent.minimum_necessary_passed:
+            return DurableMemoryResult(False, "minimum_necessary_gate_not_passed")
+
+        if not intent.visibility_gate_passed:
+            return DurableMemoryResult(False, "visibility_gate_not_passed")
+
         if self.transport is None:
             return DurableMemoryResult(False, "durable_memory_transport_not_configured")
 
@@ -89,12 +109,16 @@ class DurableMemoryBridge:
             "intent_class": intent.intent_class,
             "intent_confidence": intent.intent_confidence,
             "source_type": intent.source_type,
-            "summary": intent.summary,
+            "summary": intent.summary.strip(),
             "idempotency_key": intent.idempotency_key,
             "sensitivity": intent.sensitivity,
             "disclosure_scope": intent.disclosure_scope,
             "retention_class": "child_pinned",
             "pinned_by_child": True,
             "proactive_surface_allowed": False,
+            "privacy_gate_passed": True,
+            "sensitivity_gate_passed": True,
+            "minimum_necessary_passed": True,
+            "visibility_gate_passed": True,
         }
         return self.transport.pin_child_memory(payload)
