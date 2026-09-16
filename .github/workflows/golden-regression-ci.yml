@@ -8,6 +8,7 @@ on:
       - 'core/XIAOAI_BEHAVIOR_CORE_V1.md'
       - 'BEHAVIOR_FREEZE_BASELINE_V1.md'
       - 'runtime/**'
+      - 'db/migrations/**'
       - 'tests/golden/**'
       - 'tests/runtime/**'
       - 'tests/conversation/**'
@@ -20,6 +21,7 @@ on:
       - 'core/XIAOAI_BEHAVIOR_CORE_V1.md'
       - 'BEHAVIOR_FREEZE_BASELINE_V1.md'
       - 'runtime/**'
+      - 'db/migrations/**'
       - 'tests/golden/**'
       - 'tests/runtime/**'
       - 'tests/conversation/**'
@@ -80,6 +82,7 @@ jobs:
           tests/runtime/test_memory_actor_resolver_shadow_migration_v1.py
           tests/runtime/test_child_device_enrollment_shadow_migration_v1.py
           tests/runtime/test_child_device_auth_hook_cutover_v1.py
+          tests/runtime/test_memory_v2_verified_identity_bridge_v1.py
           tests/conversation/test_golden_conversational_suite_v1.py
           tests/conversation/test_live_candidate_adapter_v1.py
           tests/conversation/test_router_wording_regression_v1.py
