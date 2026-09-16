@@ -99,7 +99,6 @@ begin
 end;
 $$;
 
--- Stop legacy auto-promotion worker.
 do $$
 declare
   v_jobid bigint;
@@ -111,10 +110,7 @@ begin
 end;
 $$;
 
--- Remove legacy candidate trigger first.
 drop trigger if exists trg_queue_memory_job on public.memory_candidates;
-
--- Remove legacy Memory V1 functions.
 drop function if exists public.queue_memory_job();
 drop function if exists public.process_memory_jobs(integer);
 drop function if exists public.auto_process_memory_candidates(uuid);
@@ -124,10 +120,9 @@ drop function if exists public.promote_memory_candidate(uuid);
 drop function if exists public.request_explicit_memory_save(uuid,uuid,text,text,text,smallint,smallint,text);
 drop function if exists public.recall_memories(uuid,integer,text[]);
 
--- Remove empty legacy Memory V1 storage/configuration.
--- Deliberately no CASCADE: any unexpected dependency aborts the migration.
+-- Dependency-safe order; deliberately no CASCADE.
 drop table if exists public.memory_jobs;
-drop table if exists public.memory_candidates;
 drop table if exists public.durable_memories;
+drop table if exists public.memory_candidates;
 drop table if exists public.memory_policy;
 drop table if exists public.memory_save_phrases;
