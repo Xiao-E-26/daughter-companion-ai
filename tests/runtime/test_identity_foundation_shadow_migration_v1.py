@@ -26,10 +26,18 @@ def test_identity_bindings_default_fail_closed():
     assert "status in ('pending','active','revoked')" in t
 
 
-def test_runtime_session_requires_user_and_client_binding_columns():
+def test_runtime_session_requires_verified_user_and_client_binding():
     t = text()
     assert 'user_id uuid not null references public.users(id)' in t
-    assert 'client_connection_id uuid references public.client_connections(id)' in t
+    assert 'client_connection_id uuid not null references public.client_connections(id)' in t
+
+
+def test_runtime_session_does_not_start_active_by_default():
+    t = text()
+    runtime_block = t.split('create table if not exists public.runtime_sessions', 1)[1]
+    runtime_block = runtime_block.split(');', 1)[0]
+    assert "status text not null default 'pending'" in runtime_block
+    assert "status in ('pending','active','closed','revoked')" in runtime_block
 
 
 def test_rls_is_enabled_on_all_identity_tables():
