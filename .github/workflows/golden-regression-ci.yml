@@ -76,6 +76,7 @@ jobs:
           tests/runtime/test_memory_actor_evidence_v1.py
           tests/runtime/test_memory_durable_decision_integration_v1.py
           tests/runtime/test_identity_foundation_shadow_migration_v1.py
+          tests/runtime/test_memory_actor_binding_adapter_v1.py
           tests/conversation/test_golden_conversational_suite_v1.py
           tests/conversation/test_live_candidate_adapter_v1.py
           tests/conversation/test_router_wording_regression_v1.py
