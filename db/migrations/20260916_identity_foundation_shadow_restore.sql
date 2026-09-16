@@ -50,15 +50,15 @@ create table if not exists public.runtime_sessions (
   id uuid primary key default gen_random_uuid(),
   child_id uuid not null references public.child_profiles(id) on delete cascade,
   user_id uuid not null references public.users(id) on delete cascade,
-  client_connection_id uuid references public.client_connections(id) on delete restrict,
+  client_connection_id uuid not null references public.client_connections(id) on delete restrict,
   session_key text not null,
-  status text not null default 'active',
-  started_at timestamptz not null default now(),
+  status text not null default 'pending',
+  started_at timestamptz,
   ended_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   unique(child_id,session_key),
-  constraint runtime_sessions_status_check check (status in ('active','closed','revoked'))
+  constraint runtime_sessions_status_check check (status in ('pending','active','closed','revoked'))
 );
 
 create index if not exists users_auth_user_id_idx on public.users(auth_user_id);
@@ -78,4 +78,4 @@ alter table public.runtime_sessions enable row level security;
 -- child_direct actor evidence.
 
 comment on table public.runtime_sessions is
-'SHADOW identity substrate. runtime_sessions.user_id is the verified session actor candidate; it is authoritative only when matched to active users, active companion_access, and an active verified client_connection.';
+'SHADOW identity substrate. runtime_sessions.user_id is the verified session actor candidate; it is authoritative only when matched to active users, active companion_access, an active verified client_connection, and an active runtime session.';
