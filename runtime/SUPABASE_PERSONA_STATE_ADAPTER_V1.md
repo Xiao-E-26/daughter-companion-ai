@@ -1,61 +1,79 @@
 # Supabase Persona State Adapter v1
 
+Status: SHADOW / REFERENCE CONTRACT
+
 ## Purpose
 
-Persist XiaoAi persona state per authorized runtime session without allowing the language model to self-activate.
+Define the target contract for persisting XiaoAi persona state per authorized runtime session without allowing the language model to self-activate.
 
-## Current database contract
+This document does **not** claim that production persona-state persistence is currently deployed.
 
-Table: `public.runtime_sessions`
+## Verified live database posture — 2026-09-20
 
-Required fields used by the gateway:
+Current production table: `public.runtime_sessions`.
 
-- `daughter_id`
+Verified live columns:
+- `id`
+- `child_id`
 - `user_id`
+- `client_connection_id`
 - `session_key`
-- `persona_state` (`OFF` | `ACTIVE`)
+- `status`
+- `started_at`
+- `ended_at`
+- `created_at`
+- `updated_at`
+
+The live table currently does **not** contain:
+- `persona_state`
 - `activation_source`
 - `activated_at`
 - `deactivated_at`
 - `last_active_at`
 
-`status` remains the lifecycle status of the runtime session and MUST NOT be reused as persona activation state.
+The only verified session-start RPC is `start_child_runtime_session_shadow_v1`.
+
+Therefore:
+- session substrate exists;
+- persona-state persistence remains shadow/design-only;
+- production `ACTIVE/OFF` persistence is not yet closed.
+
+## Command contract
+
+Canonical activation command: `小爱上线`
+
+Canonical shutdown command: `小爱下班`
+
+Compatibility aliases:
+- `小爱收工`
+- `小愛收工`
+- `小愛下班`
+
+The deterministic gate in `runtime/persona_gate.py` owns command interpretation. Conversation context, emotional wording, child-like language, remembered state, or family context must never auto-activate XiaoAi.
 
 ## Security contract
 
-1. Default state is `OFF`.
-2. Missing, malformed, unauthorized, or unreadable state must resolve to `OFF`.
-3. Persona state is scoped by `(daughter_id, user_id, session_key)`.
-4. Memory continuity may be shared across authorized clients, but persona runtime state is not implicitly shared.
-5. The model never writes directly to `runtime_sessions`.
-6. Do not expose a service-role key to a ChatGPT client, browser, mobile client, or robot client.
-7. Do not add a broad authenticated RLS policy merely to make the gateway work.
-8. Production writes require a verified caller identity mapped to `public.users.auth_user_id` and authorized access in `public.companion_access`.
-9. Activation/deactivation must be persisted by the trusted gateway after `XiaoAiPersonaGate` decides the transition.
-10. The exact command `小爱收工` persists `OFF`; subsequent emotional or child-like content cannot reactivate XiaoAi.
+1. Default state is fail-closed.
+2. Identity, authorization, client binding, session state, and persona state remain separate concerns.
+3. Do not expose service-role credentials to any client.
+4. Do not add broad authenticated RLS merely to make persona persistence work.
+5. The model must never write persona state directly.
+6. A future production adapter must require a verified caller binding and authorized session before persisting `ACTIVE/OFF`.
+7. Missing or unreadable persona persistence must not be presented as successful activation.
 
-## Production adapter interface
+## Target adapter interface
 
-The adapter must implement the `PersonaStateStore` protocol from `runtime/persona_gateway.py`:
+A production implementation may satisfy the `PersonaStateStore` protocol from `runtime/persona_gateway.py`:
 
 ```python
-get_state(daughter_id, user_id, session_key) -> str | None
-set_state(daughter_id, user_id, session_key, state, activation_source) -> None
+get_state(child_id, user_id, session_key) -> str | None
+set_state(child_id, user_id, session_key, state, activation_source) -> None
 ```
 
-## Activation flow
+This is a target interface, not evidence of a live production adapter.
 
-```text
-Client message
-  -> authenticate caller
-  -> resolve internal user + daughter access
-  -> read session persona_state
-  -> XiaoAiPersonaGate.evaluate(...)
-  -> persist transition when present
-  -> ACTIVE: load XiaoAi identity/behavior/memory context
-  -> OFF: route to normal assistant without XiaoAi persona context
-```
+## Current blocker
 
-## Blocker before production persistence
+Production contains no bound live identities or live runtime sessions. Verified counts for `auth.users`, `users`, `companion_access`, `client_connections`, and `runtime_sessions` are all zero.
 
-The current Supabase project contains no rows in `users`, `client_connections`, or `companion_access`. Therefore there is not yet a verified caller-to-user-to-daughter mapping to authorize production state writes safely. Until that mapping exists, the production adapter must remain fail-closed rather than introducing a permissive RLS/RPC shortcut.
+Until a real verified identity/session path exists and a production persona-state store is deployed, this contract remains SHADOW / REFERENCE and activation persistence must fail closed.
