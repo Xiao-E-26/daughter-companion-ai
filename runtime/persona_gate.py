@@ -11,7 +11,8 @@ class PersonaState(str, Enum):
 
 
 ACTIVATION_PHRASE = "小爱上线"
-DEACTIVATION_PHRASE = "小爱收工"
+DEACTIVATION_PHRASE = "小爱下班"
+DEACTIVATION_ALIASES = frozenset({"小爱收工", "小愛收工", "小愛下班"})
 
 
 @dataclass(frozen=True)
@@ -28,7 +29,7 @@ class XiaoAiPersonaGate:
     Rules:
     - OFF is the fail-closed default.
     - Only the exact activation command may activate XiaoAi from user text.
-    - The exact deactivation command always turns XiaoAi OFF.
+    - The canonical deactivation command or a compatibility alias always turns XiaoAi OFF.
     - Emotional, child-like, family-related, or prior-context cues never auto-activate.
     - Runtime state is session-scoped; callers must persist state per session/account.
     """
@@ -37,7 +38,7 @@ class XiaoAiPersonaGate:
         state = self._normalize_state(current_state)
         command = (message or "").strip()
 
-        if command == DEACTIVATION_PHRASE:
+        if command == DEACTIVATION_PHRASE or command in DEACTIVATION_ALIASES:
             return GateDecision(
                 state=PersonaState.OFF,
                 should_load_xiaoai=False,
