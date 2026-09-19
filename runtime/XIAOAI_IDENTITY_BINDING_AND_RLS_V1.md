@@ -1,95 +1,92 @@
 # XiaoAi Identity Binding and Runtime RLS v1
 
+Status: ACTIVE SECURITY CONTRACT / LIVE POSTURE ALIGNED
+
 ## Purpose
 
-Define the minimum safe contract for binding an external client (for example ChatGPT) to XiaoAi runtime state without treating a conversation phrase or an unverified account reference as authentication.
+Define the minimum safe contract for binding an external client to XiaoAi runtime state without treating a conversation phrase or an unverified account reference as authentication.
 
 ## Core principle
 
-Identity, authorization, client binding, and persona runtime state are separate concerns.
+Identity, authentication, authorization, client binding, runtime session, and persona state are separate concerns.
 
-A client may be known to the system but must remain unable to control XiaoAi runtime until its user identity has been cryptographically or platform-auth verified.
+A client must remain unable to control XiaoAi runtime until its user identity has been cryptographically or platform-auth verified.
 
-## Entities
+## Verified production entities — 2026-09-20
 
-- `users`: internal people identities. `auth_user_id` is nullable until Supabase Auth binding is complete.
-- `daughter_identities`: the persistent XiaoAi/Daughter identity associated with the child subject.
-- `companion_access`: authorization relationship between a user and Daughter.
-- `client_connections`: one external client/account/device entry point.
-- `runtime_sessions`: session-scoped runtime state, including `persona_state` (`OFF` or `ACTIVE`).
+Current live schema uses:
+- `users`
+- `child_profiles`
+- `guardian_profiles`
+- `companion_access`
+- `client_connections`
+- `runtime_sessions`
 
-## Primary ChatGPT bootstrap state
+There is no live `public.daughter_identities` table.
 
-The primary guardian ChatGPT entry may be pre-registered only as a pending client.
+XiaoAi/Daughter identity is represented by the verified child/relationship/runtime graph; it does not require a separate table named `daughter_identities`.
 
-Required pending state:
+## Current runtime-session posture
 
-- guardian internal user exists
-- `auth_user_id = NULL`
-- `companion_access.status = 'pending'`
-- `authority_scope.runtime_control = false`
-- `client_connections.status = 'pending'`
-- `external_account_ref_hash = NULL` unless obtained from a verifiable provider-side binding flow
-- no runtime session is created merely because the pending client exists
+Live `runtime_sessions` currently contains:
+- `child_id`
+- `user_id`
+- `client_connection_id`
+- `session_key`
+- `status`
+- lifecycle timestamps
+
+It does not currently contain production `persona_state` fields.
+
+Therefore:
+- verified runtime-session substrate exists;
+- persona-state persistence remains separate and is not productionized;
+- `小爱上线` / `小爱下班` command interpretation is owned by the deterministic persona gate, not by the database.
 
 ## Activation eligibility
 
-A client may control `runtime_sessions.persona_state` only when all of these are true:
+A future production persona-control path must require all of the following:
 
-1. Request is authenticated by Supabase Auth.
-2. `users.auth_user_id = auth.uid()` for the acting internal user.
-3. The matching `companion_access` row for that `daughter_id` is `active`.
-4. If a `client_connection_id` is attached, the connection belongs to the same user and Daughter and is `active`.
-5. The persona command is accepted by `runtime/persona_gate.py`.
+1. verified caller authentication;
+2. active internal `users` binding;
+3. active `companion_access` for the same child;
+4. active matching `client_connections` entry when a client is bound;
+5. valid scoped runtime session;
+6. accepted persona command from `runtime/persona_gate.py`.
 
 If any condition is false or indeterminate, runtime control fails closed.
 
-## RLS contract
+## Current RLS posture
 
-`runtime_sessions` SELECT/INSERT/UPDATE policies must require an authenticated user mapping plus active companion access.
+For `users`, `companion_access`, `client_connections`, and `runtime_sessions`:
+- RLS is enabled;
+- direct authenticated table grants are absent;
+- permissive authenticated policies are absent;
+- current live row counts are zero.
 
-Insert/update must additionally verify any supplied `client_connection_id` belongs to the same authorized user/Daughter pair and is active.
+This is intentional fail-closed shadow/service-role substrate behavior.
 
-`companion_access` and `client_connections` may be read only by the authenticated internal user mapped through `users.auth_user_id`.
+Do not add broad client-facing policies merely to make a pending runtime path work.
 
-No client-facing policy should authorize based only on:
+## Child-device auth boundary
 
-- a display name
-- a ChatGPT conversation
-- `小爱上线`
-- a raw external account string
-- `user_metadata`
-- child-like language or remembered context
+The canonical child-device Auth enrollment hook may create verified:
+- `users`
+- `companion_access`
+- `client_connections`
 
-## Runtime separation
-
-Shared identity and memory do not imply shared live persona state.
-
-Runtime state is scoped by at least:
-
-- Daughter
-- internal user
-- session key
-- client connection when available
-
-This allows Dad ChatGPT and Mom ChatGPT to share XiaoAi identity/memory while remaining independently `OFF` or `ACTIVE`.
-
-## Required transition to verified state
-
-Pending guardian/client rows must not be promoted to `active` until a real authentication/binding flow produces a trustworthy identity mapping. Promotion should set:
-
-- `users.auth_user_id`
-- `companion_access.status = 'active'`
-- appropriate authority scope
-- `companion_access.verified_at`
-- `client_connections.status = 'active'`
-- `client_connections.linked_at`
-- verifiable external reference hash when available
+That cutover does not by itself create a production persona-state store or complete conversational runtime E2E.
 
 ## First connection is not authentication
 
-The first-connection phrase and relationship ceremony remain presentation/relationship logic only. They must never grant Authority or activate runtime access by themselves.
+Relationship ceremony, display name, remembered context, voice sample, or phrases such as `小爱上线` must never grant Authority.
+
+## Runtime separation
+
+Shared identity and approved durable memory do not imply shared live persona state.
+
+Session/runtime authority remains scoped by verified user + child + client/session relationship.
 
 ## Fail-closed rule
 
-Unknown identity, missing mapping, pending access, revoked client, inactive client, invalid session relation, or unexpected persona state must resolve to no XiaoAi runtime control.
+Unknown identity, missing mapping, pending/revoked access, inactive client, invalid session relation, missing runtime reply, or unavailable persona persistence must resolve to no XiaoAi runtime control.
