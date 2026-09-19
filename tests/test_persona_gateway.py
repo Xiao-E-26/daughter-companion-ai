@@ -27,14 +27,23 @@ def test_active_session_stays_xiaoai_until_explicit_shutdown():
     assert result.route == "xiaoai"
 
 
-def test_shutdown_returns_to_normal_and_blocks_context_reactivation():
+def test_canonical_shutdown_returns_to_normal_and_blocks_context_reactivation():
     gateway = XiaoAiRuntimeGateway(InMemoryPersonaStateStore())
     gateway.handle_message(daughter_id=D, user_id=U, session_key=S, message="小爱上线")
-    off = gateway.handle_message(daughter_id=D, user_id=U, session_key=S, message="小爱收工")
+    off = gateway.handle_message(daughter_id=D, user_id=U, session_key=S, message="小爱下班")
     after = gateway.handle_message(daughter_id=D, user_id=U, session_key=S, message="我今天给爸爸骂")
     assert off.route == "normal_assistant"
     assert after.route == "normal_assistant"
     assert after.persona_state.value == "OFF"
+
+
+def test_shutdown_aliases_return_to_normal():
+    for phrase in ("小爱收工", "小愛收工", "小愛下班"):
+        gateway = XiaoAiRuntimeGateway(InMemoryPersonaStateStore())
+        gateway.handle_message(daughter_id=D, user_id=U, session_key=S, message="小爱上线")
+        off = gateway.handle_message(daughter_id=D, user_id=U, session_key=S, message=phrase)
+        assert off.route == "normal_assistant"
+        assert off.persona_state.value == "OFF"
 
 
 def test_state_is_session_scoped():
