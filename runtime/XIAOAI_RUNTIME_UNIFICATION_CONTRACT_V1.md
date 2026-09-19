@@ -1,64 +1,58 @@
 # XiaoAi Runtime Unification Contract v1
 
-Status: REPAIR CANDIDATE / NON-BEHAVIOR
+Status: REFERENCE / HISTORICAL REPAIR CONTRACT
 
 ## Purpose
-Unify the live Supabase runtime and GitHub runtime without changing XiaoAi Behavior Logic or removing existing capabilities.
+
+Preserve the earlier runtime-unification repair intent without allowing stale implementation assumptions to override current verified production state.
 
 ## Frozen boundary
-The following remain authoritative and unchanged by this repair:
+
+The following remain unchanged by runtime maintenance:
 - `core/XIAOAI_BEHAVIOR_CORE_V1.md`
 - `BEHAVIOR_FREEZE_BASELINE_V1.md`
 - `BEHAVIOR_MODE_ROUTER_V1.md`
 - `runtime/behavior_mode_router.py`
 
-## Canonical responsibility map
+## Current verified production posture — 2026-09-20
 
-### Behavior Logic
-Owner: frozen Behavior Core and Behavior Router contract.
-Runtime, database, Edge Functions, telemetry, and adapters may consume these rules but must not redefine them.
+Active Edge Functions:
+- `xiaoi-memory-runtime` v5 — ACTIVE — `verify_jwt=true`
+- `xiaoi-ui-preview` v3 — ACTIVE
 
-### Identity and access
-Owner: Supabase identity graph (`users`, `daughter_identities`, `companion_access`, `guardians`, `client_connections`).
-No conversational phrase grants identity or access.
+No active `daughter-chat` Edge Function exists.
 
-### Persona session state
-Owner: `runtime_sessions` persisted through authenticated runtime adapters.
-Activation/deactivation phrases may request state transitions only after identity/access authorization.
+Therefore any older wording that names `daughter-chat` as the current live conversational owner is historical and must not be treated as current truth.
+
+## Current responsibility map
+
+### Behavior
+Owned by canonical behavior/policy sources and runtime decision contracts.
+
+### Identity / session substrate
+Supabase contains the identity/session primitives, but current live identity/session rows are empty and persona-state persistence is not productionized.
 
 ### Memory
-Durable source of truth: Supabase durable memory layer.
-GitHub Python memory code defines runtime eligibility and transformation semantics, not a second authoritative database.
-Expired/disputed/deleted memory must never be promoted back into context merely because an adapter can read it.
+Memory V2 protected production path is deployed and enabled in `child_pinned_only` mode. This does not imply current real-user usage.
 
-### Continuity
-Owner: `shared_continuity_state` + `continuity_updates`.
-Visibility is enforced at the data access layer before content reaches model context.
+### Conversational brain
+GitHub contains `DaughterOrchestrator` and `AuthoritativeReplyAdapter` as the canonical conversational brain implementation boundary.
 
-### Guardian linking
-Owner: verified Supabase Auth identity + one-time Guardian invite + atomic claim transaction.
-Edge Functions are transport/adapters, not authority owners.
+### Live conversational serving
+Not currently active.
 
-### Live chat orchestration
-Current live owner: Supabase `daughter-chat` adapter.
-Target architecture: live adapter delegates to the same deterministic decision/context boundaries represented in GitHub runtime.
-Do not cut over in one step. Use shadow comparison first.
+## Historical migration note
 
-## Migration path
-1. Keep existing `daughter-chat` response path active.
-2. Add a shadow-only runtime decision path that receives the same normalized input.
-3. Record shadow decision metadata only; do not alter the user-visible reply.
-4. Compare live-vs-shadow decisions and investigate mismatches.
-5. Add signal generation in shadow mode only.
-6. Require regression evidence before any shadow decision is allowed to influence responses.
-7. Preserve rollback to the existing response path until production stability is demonstrated.
+Earlier migration steps that referenced keeping `daughter-chat` active and comparing a shadow runtime describe a retired transition plan. Do not recreate `daughter-chat` merely to satisfy this historical document.
+
+## Current repair invariant
+
+`Reduce duplicate ownership -> preserve capability -> preserve frozen behavior -> keep one canonical state authority -> verify before cutover`.
 
 ## Non-goals
-- no Behavior Logic rewrite;
-- no child-facing personality change;
-- no deletion of Memory, Guardian, continuity, device, or multi-entry capabilities;
-- no model-provider lock-in;
-- no direct production Router activation without shadow evidence.
 
-## Repair invariant
-`Reduce duplicate ownership -> keep capability -> keep frozen behavior -> move authority to one canonical layer -> verify before cutover.`
+- no Behavior Core rewrite;
+- no child-facing personality reset;
+- no permission expansion;
+- no restoration of retired shadow transport;
+- no live-serving cutover unless explicitly approved and evidenced.
