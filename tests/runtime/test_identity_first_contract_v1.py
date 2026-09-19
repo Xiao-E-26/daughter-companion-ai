@@ -40,7 +40,7 @@ def test_manual_mcp_url_is_not_product_entry():
     assert transport["product_semantics"] == "implementation_detail_only"
 
     identity_doc = (RUNTIME / "XIAOAI_IDENTITY_FIRST_ENTRY_V1.md").read_text(encoding="utf-8")
-    assert "user-facing MCP URL or manual transport registration" in identity_doc
+    assert "require the end user to know or configure an MCP URL" in identity_doc
     assert "Identity-first, transport-agnostic." in identity_doc
 
 
