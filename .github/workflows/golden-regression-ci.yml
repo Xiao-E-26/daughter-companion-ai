@@ -59,34 +59,11 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install --upgrade pip pytest
-      - name: Run Golden regression tests
+      - name: Run Golden + full runtime regression tests
         run: >-
           python -m pytest -q
-          tests/golden/test_golden_regression_mapping_v1.py
-          tests/runtime/test_golden_boundary_regression_v1.py
-          tests/runtime/test_context_memory_runtime_v1.py
-          tests/runtime/test_behavior_mode_router_v1.py
-          tests/runtime/test_behavior_mode_router_multiconflict_v1.py
-          tests/runtime/test_behavior_shadow_router_v1.py
-          tests/runtime/test_behavior_shadow_staging_v1.py
-          tests/runtime/test_behavior_shadow_context_shift_staging_v1.py
-          tests/runtime/test_read_only_runtime_context_v1.py
-          tests/runtime/test_shadow_runtime_comparator_v1.py
-          tests/runtime/test_shadow_runtime_telemetry_v1.py
-          tests/runtime/test_voice_io_pipeline_v1.py
-          tests/runtime/test_openai_speech_io_adapter_v1.py
-          tests/runtime/test_voice_shadow_runner_v1.py
-          tests/runtime/test_memory_policy_gate_v1.py
-          tests/runtime/test_memory_actor_evidence_v1.py
-          tests/runtime/test_memory_durable_decision_integration_v1.py
-          tests/runtime/test_identity_foundation_shadow_migration_v1.py
-          tests/runtime/test_memory_actor_binding_adapter_v1.py
-          tests/runtime/test_memory_actor_resolver_shadow_migration_v1.py
-          tests/runtime/test_child_device_enrollment_shadow_migration_v1.py
-          tests/runtime/test_child_device_auth_hook_cutover_v1.py
-          tests/runtime/test_memory_v2_verified_identity_bridge_v1.py
-          tests/runtime/test_memory_v2_authenticated_runtime_v1.py
-          tests/runtime/test_memory_v2_production_cutover_v1.py
-          tests/conversation/test_golden_conversational_suite_v1.py
-          tests/conversation/test_live_candidate_adapter_v1.py
-          tests/conversation/test_router_wording_regression_v1.py
+          tests/golden
+          tests/runtime
+          tests/conversation
+          tests/test_persona_gate.py
+          tests/test_persona_gateway.py
