@@ -39,9 +39,9 @@ def test_manual_mcp_url_is_not_product_entry():
     assert transport["user_facing_mcp_setup_required"] is False
     assert transport["product_semantics"] == "implementation_detail_only"
 
-    legacy_doc = (RUNTIME / "CHATGPT_SHADOW_APP_CONNECTION_V1.md").read_text(encoding="utf-8")
-    assert "DEPRECATED AS PRODUCT ENTRY" in legacy_doc
-    assert "should not need to know, paste, or configure an MCP URL" in legacy_doc
+    identity_doc = (RUNTIME / "XIAOAI_IDENTITY_FIRST_ENTRY_V1.md").read_text(encoding="utf-8")
+    assert "user-facing MCP URL or manual transport registration" in identity_doc
+    assert "Identity-first, transport-agnostic." in identity_doc
 
 
 def test_identity_first_contract_keeps_fail_closed_and_voice_unification():
