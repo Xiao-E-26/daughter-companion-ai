@@ -14,11 +14,20 @@ def test_exact_activation_turns_on():
     assert d.reason == "explicit_activation"
 
 
-def test_exact_deactivation_turns_off():
-    d = XiaoAiPersonaGate().evaluate("ACTIVE", "小爱收工")
+def test_canonical_deactivation_turns_off():
+    d = XiaoAiPersonaGate().evaluate("ACTIVE", "小爱下班")
     assert d.state is PersonaState.OFF
     assert d.should_load_xiaoai is False
     assert d.reason == "explicit_deactivation"
+
+
+def test_deactivation_aliases_turn_off():
+    gate = XiaoAiPersonaGate()
+    for phrase in ("小爱收工", "小愛收工", "小愛下班"):
+        d = gate.evaluate("ACTIVE", phrase)
+        assert d.state is PersonaState.OFF
+        assert d.should_load_xiaoai is False
+        assert d.reason == "explicit_deactivation"
 
 
 def test_child_like_language_does_not_auto_activate():
