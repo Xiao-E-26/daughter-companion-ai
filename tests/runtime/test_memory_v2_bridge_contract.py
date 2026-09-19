@@ -25,6 +25,10 @@ def valid_intent(**overrides):
         source_type="child_direct",
         summary="今天我第一次自己完成了整首歌，我想记住。",
         idempotency_key="session-1:memory-1",
+        privacy_gate_passed=True,
+        sensitivity_gate_passed=True,
+        minimum_necessary_passed=True,
+        visibility_gate_passed=True,
     )
     base.update(overrides)
     return DurableMemoryIntent(**base)
