@@ -1,83 +1,64 @@
 # XiaoAi RLS Coverage Policy v1
 
+Status: REFERENCE — LIVE SECURITY POSTURE
+
 ## Goal
 
-Document which public tables are intentionally client-accessible and which are intentionally fail-closed/server-only. A Supabase advisor warning about missing policies must never be resolved by broadly opening access without an explicit product need.
+Document verified production RLS posture without turning advisor warnings into permission expansion.
 
-## Client-accessible with scoped RLS
+## Verified live identity/session substrate — 2026-09-20
 
-### users
-Authenticated users may access only their own internal user mapping via `users.auth_user_id = auth.uid()`.
+The following production tables exist:
+- `users`
+- `companion_access`
+- `client_connections`
+- `runtime_sessions`
 
-### daughter_identities
-Read access is limited to the authenticated subject mapping already defined by the project.
+For all four:
+- RLS is enabled;
+- direct authenticated table grants are absent;
+- permissive authenticated policies are absent;
+- current live row count is zero.
 
-### companion_access
-Authenticated users may read only access rows belonging to their mapped internal user. Runtime authorization additionally requires `status = 'active'`.
+This is intentional fail-closed behavior for the shadow/service-role identity substrate.
 
-### client_connections
-Authenticated users may read only their own client connections. Runtime control additionally requires an active matching client.
+Do **not** add broad authenticated policies merely because a policy count is zero.
 
-### runtime_sessions
-Authenticated users may read/write only runtime rows for a Daughter to which they have active companion access. Any attached client connection must belong to the same user/Daughter pair and be active. Persona state is session scoped.
+## Current identity model
 
-### relationships
-Authenticated users with active companion access may read the relationship row for the authorized Daughter.
+The verified production identity/session graph uses:
+- `users`
+- `child_profiles`
+- `guardian_profiles`
+- `companion_access`
+- `client_connections`
+- `runtime_sessions`
 
-### shared_continuity_state
-Authenticated active companions may read continuity state for their authorized Daughter. Only child/guardian roles may insert or update, and writes must identify the authenticated internal user as the actor.
+There is no live `public.daughter_identities` table.
 
-### continuity_updates
-Only authenticated child/guardian actors with active companion access may insert updates for the authorized Daughter and valid subject relationship.
+XiaoAi/Daughter identity remains a relationship/runtime concept; it does not require a standalone production table named `daughter_identities`.
 
-### audit_logs
-Only authenticated child/guardian actors may insert audit events that identify themselves as the actor for the authorized Daughter.
+## Scoped client-accessible examples
 
-### guardians
-Read-only self access. A guardian may read their own guardian row when either `guardians.auth_user_id = auth.uid()` or the linked internal `users` row maps to `auth.uid()`. No self-service mutation policy is granted.
+Some separate tables, such as `child_profiles`, `guardian_profiles`, `chat_sessions`, and `safety_events`, have their own verified scoped RLS policies. Their policies must not be copied onto the shadow identity/session substrate without an explicit product cutover.
 
-## Explicit server-only tables
+## Memory boundary
 
-The following tables intentionally use deny-all RLS policies for the `authenticated` role. They are not client APIs.
-
-### memories
-Contains long-term memory content, sensitivity, confidence, source, and fact-status metadata. Raw memory rows must not be directly exposed to clients. Access should occur only through a purpose-built, filtered server/runtime interface.
-
-### experience_memories
-Contains internal problem patterns, hypotheses, actions, outcomes, lessons, and confidence. This is an internal reasoning/learning store and remains server-only.
-
-### safety_events
-Contains risk levels, safety summaries, guardian-conflict markers, actions taken, and open/closed safety state. Direct client access is intentionally denied. Any future guardian-facing safety view must use a dedicated, redacted API with its own review.
-
-### guardian_link_requests
-Contains `token_hash`, claim state, expiry, and linkage metadata. Direct authenticated-table access is intentionally denied. Guardian linking must be performed through a dedicated server flow that never exposes token hashes.
-
-## Why explicit deny-all policies are used
-
-RLS enabled with no policy already fails closed, but an explicit deny-all policy documents the intended boundary and avoids future maintainers "fixing" an advisor message by creating overly broad access.
-
-Example intent:
-
-```sql
-create policy memories_server_only
-on public.memories for all
-to authenticated
-using (false)
-with check (false);
-```
-
-This does not make the table public; it records that direct authenticated access is forbidden.
+Raw durable-memory internals and sensitive system stores must remain behind purpose-built APIs and policy gates. Direct table exposure is not a substitute for memory authorization.
 
 ## Non-negotiable rules
 
-- Never authorize with `user_metadata`.
-- Never use service-role access in client-facing runtime functions merely to bypass RLS.
-- Never expose guardian-link token hashes.
-- Never expose raw safety events or raw memory tables directly to clients.
-- `小爱上线` is a persona command, not authentication.
-- Memory/continuity access does not imply runtime persona-control permission.
-- Shared identity/memory does not imply shared session ACTIVE/OFF state.
+- Never authorize with `user_metadata` alone.
+- Never authorize from a display name, conversation claim, or `小爱上线`.
+- Never expose provider/service-role secrets to clients.
+- Never broaden RLS to make a failing client path "work".
+- Memory continuity does not imply persona-control authority.
+- Shared identity/memory does not imply shared `ACTIVE/OFF` session state.
+- Current verified backend state outranks stale documentation.
 
-## Verification status
+## Verification language
 
-After applying the scoped-access and explicit server-only policies, the Supabase Security Advisor returned zero security lints for the project.
+Do not claim "all scoped client RLS is applied" or "Security Advisor is zero" unless that exact state has been re-verified against the current production project.
+
+Current verified statement:
+`identity/session substrate = RLS enabled + no authenticated grants + no permissive policies + fail closed`.
