@@ -9,7 +9,7 @@ def test_device_entry_requires_verified_authorization():
     text = MULTI.read_text(encoding="utf-8")
     sql = AUTH_HOOK.read_text(encoding="utf-8").lower()
     assert "entry point is a client, not the identity itself" in text
-    assert "no entry point gains authority merely by saying `小爱上线`" in text
+    assert "No entry point gains authority merely by saying `小爱上线`." in text
     assert "xiaoai_enrollment_token" in sql
     assert "valid child-device enrollment is required" in sql
 
