@@ -7,12 +7,12 @@ This directory contains the GitHub-side runtime implementation, adapters, contra
 GitHub is the source of truth for XiaoAi Behavior, policies, runtime contracts, implementation logic, and tests.
 Supabase is authoritative for authenticated identity, access, memory, continuity, client connections, runtime session state, and deployed Edge Function state.
 
-### Live production Edge inventory — verified 2026-09-16
+### Live production Edge inventory — verified 2026-09-20
 
 Canonical XiaoAi Supabase project: `bnxjlbuohnujgvryttzj`.
 
 Active Edge Functions discovered through Xiao-E cross-account Supabase execution:
-- `xiaoi-memory-runtime` v4 — ACTIVE — `verify_jwt=true`
+- `xiaoi-memory-runtime` v5 — ACTIVE — `verify_jwt=true`
 - `xiaoi-ui-preview` v3 — ACTIVE — `verify_jwt=false`
 
 No active `daughter-chat` Edge Function was present in the verified live project inventory at the time of this check.
@@ -21,12 +21,13 @@ Therefore, older documentation describing `daughter-chat v4` as the active produ
 
 Do not infer that `xiaoi-memory-runtime` is the full conversational brain merely because it is active. Its exact production responsibilities must be established from live source or verified execution evidence.
 
-## Canonical session lifecycle
+## Session / persona posture
 
-- activation: `persona_state = ACTIVE`, `status = active`
-- deactivation: `persona_state = OFF`, `status = closed`
-- persona-only presentation is not sufficient evidence of backend activation
-- missing backend/runtime execution must fail closed rather than silently imitating XiaoAi
+- `runtime_sessions` exists as the current session substrate.
+- The verified live schema does not currently contain a production `persona_state` column.
+- `ACTIVE/OFF` persona persistence is therefore not yet productionized.
+- Persona-only presentation is not sufficient evidence of backend activation.
+- Missing backend/runtime execution must fail closed rather than silently imitating XiaoAi.
 
 ## Runtime implementation
 
