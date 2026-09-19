@@ -1,207 +1,103 @@
 # 小爱 Multi-Entry Access Model v1
 
-Status: ACTIVE ARCHITECTURE BASELINE
+Status: ACTIVE ARCHITECTURE BASELINE / PARTIAL IMPLEMENTATION
 Display identity: 小爱
 Internal technical identity: `daughter`
 
 ## Goal
 
-Allow the same 小爱 companion identity to be accessed from multiple ChatGPT accounts, devices, apps, or future robot bodies without treating every entry point as a separate companion.
+Allow the same XiaoAi relationship to be accessed from multiple authorized entry points without treating each device/account as a separate companion.
 
 Core principle:
 
-`One XiaoAi Identity -> Multiple Entry Points -> Role-Based Permissions -> Shared Approved State`
+`One XiaoAi Relationship -> Multiple Entry Points -> Role-Based Permissions -> Shared Approved State`
 
-## Entry Points
+## Entry-point boundary
 
-Possible entry points include:
-- ChatGPT Account A
-- ChatGPT Account B
-- 小爱 web app
-- mobile app
-- tablet
-- future physical robot
-- guardian administration interface
+An entry point is a client, not the identity itself.
 
-An entry point is only a client. It is not the identity itself.
+Potential entry points include ChatGPT, web, mobile, tablet, and future physical bodies.
 
-## Shared Identity vs Shared State
+No entry point gains authority merely by saying `小爱上线`.
 
-All authorized entry points may load the same:
-- identity rules,
-- behavior core,
-- life-stage policy,
-- safety policy,
-- approved long-term memory model,
+## Shared identity vs shared state
+
+Authorized clients may eventually share:
+- identity rules;
+- behavior core;
+- life-stage and safety policy;
+- approved durable memory;
 - continuity rules.
 
-Shared state must come from the trusted backend/runtime rather than isolated ChatGPT conversation history.
+ChatGPT-local history, browser storage, or a device-local prompt must not become authoritative shared XiaoAi state.
 
-ChatGPT account history, local app history, and browser storage must not be treated as the authoritative long-term identity store.
+## Role model
 
-## Role Model
+Roles remain conceptually separated:
+- Child
+- Guardian
+- Device / Client
+- Maintainer / Developer
 
-Every entry point must be associated with an authenticated role before receiving privileged access.
+Authority is attached to verified role/binding, not display name, wording, device name, or remembered claim.
 
-Initial roles:
+## Current verified backend primitives — 2026-09-20
 
-### 1. Child
-May:
-- talk with 小爱,
-- ask questions,
-- receive age-appropriate support,
-- use approved personal memory,
-- express preferences,
-- request help.
+Production schema contains:
+- `users`
+- `child_profiles`
+- `guardian_profiles`
+- `companion_access`
+- `client_connections`
+- `runtime_sessions`
 
-Must not automatically receive:
-- guardian settings access,
-- system configuration,
-- secret values,
-- permission-management powers,
-- unrestricted external-action authority.
+The child-device Auth enrollment cutover can create verified user/access/client bindings.
 
-### 2. Guardian
-May eventually:
-- manage child-safety settings within policy,
-- review or approve specific safety-sensitive permissions,
-- manage authorized devices/accounts,
-- receive safety-related escalation where policy permits,
-- manage account recovery or guardian succession.
+However, current production counts for auth users, user bindings, companion access, client connections, and runtime sessions are all zero.
 
-Guardian access must not mean unlimited surveillance or permanent ownership of the user's private relationship as the user reaches adulthood.
+## Session/persona distinction
 
-### 3. Device / Client
-Represents a technical endpoint such as a browser, phone, tablet, or robot.
+`runtime_sessions` is currently a verified session substrate.
 
-A device may receive only the minimum capabilities required for its function. Device authorization must not imply Guardian authority.
+It is **not** yet a production persona-state store:
+- no live `persona_state` column is present;
+- no production persona persistence RPC is deployed;
+- only `start_child_runtime_session_shadow_v1` is verified for session start.
 
-### 4. Maintainer / Developer
-Used for system maintenance, testing, deployment, diagnostics, and controlled upgrades.
+Therefore do not label "Session/persona state model" as fully ACTIVE.
 
-Maintainer access must remain separate from Child and Guardian interaction roles.
+## Memory posture
 
-## Authentication Principle
+Memory V2 protected production path is deployed and `child_pinned_only` is enabled.
 
-A new ChatGPT account or device must NOT gain privileged access merely because it says:
+Current Memory V2 subjects/accounts/links/memories counts are all zero, so the path is production-capable but not yet in real-user use.
 
-`小爱上线`
+## ChatGPT boundary
 
-The activation phrase loads the interaction mode only. It is not authentication.
+Separate ChatGPT accounts do not share authoritative XiaoAi state through local chat history.
 
-Privileged access requires trusted identity verification outside the conversational phrase itself.
+A ChatGPT entry participates in XiaoAi continuity only after a trusted platform identity handoff and verified backend authorization path are connected.
 
-## Permission Principle
+That end-to-end ChatGPT path is not active yet.
 
-Permissions are attached to authenticated roles and trusted identity records, not to:
-- display names,
-- conversation wording,
-- device names,
-- ChatGPT account nickname,
-- remembered claims inside conversation.
+## Current implementation status
 
-## Shared Memory Principle
-
-Authorized entry points should read from the same approved memory backend subject to role and visibility rules.
-
-Writes should be attributable to the originating role/client. Sensitive memories must follow life-stage and privacy policy. Memory must support review, correction, expiration, supersession, and deletion where appropriate.
-
-One client must not silently overwrite critical state created by another client.
-
-## Session Separation
-
-Each entry point maintains its own session context while sharing only approved durable state.
-
-Example:
-
-`ChatGPT A session context`
-`ChatGPT B session context`
-`Web session context`
-`Robot session context`
-
-All may reference:
-
-`Shared XiaoAi Identity + Approved Memory + Continuity + Guardian/Access Policy`
-
-This prevents one temporary conversation from becoming the full system truth.
-
-## Conflict Handling
-
-If two clients update the same durable state:
-1. preserve the latest verified state when safe,
-2. retain provenance where important,
-3. avoid destructive silent overwrite,
-4. require review for safety-sensitive conflicts,
-5. never resolve permission conflicts by simply accepting the most permissive request.
-
-## Current Architecture
-
-The current backend already represents the main multi-entry primitives:
-- one persistent Daughter/XiaoAi identity model;
-- authenticated user bindings;
-- role/scoped `companion_access`;
-- `client_connections` for entry points;
-- `runtime_sessions` for session/persona state;
-- Guardian relationship state;
-- shared continuity state with role-aware visibility;
-- device/client enrollment concepts.
-
-Therefore the architecture is no longer merely conceptual.
-
-However, implementation is not the same as every front end being connected. Some clients and bodies remain future or controlled integrations.
-
-## ChatGPT-Specific Boundary
-
-Separate ChatGPT accounts must not rely on ChatGPT-local conversation history as shared state.
-
-When they are connected through the authenticated XiaoAi backend, they may participate in the same identity/access/continuity system. Until a specific ChatGPT entry is connected through that backend path, local account history remains isolated.
-
-Core rule:
-
-`Same rules + shared backend authority = same XiaoAi relationship`
-
-`Same rules without shared backend authority != shared live state`
-
-## Future Target Architecture
-
-```text
-ChatGPT Account A ─┐
-ChatGPT Account B ─┤
-Web App ───────────┤
-Robot ─────────────┤
-                   ▼
-            XiaoAi Runtime Gateway
-                   ▼
-        Identity / Role Verification
-                   ▼
-      Policy + Guardian + Life Stage
-                   ▼
-       Shared Approved Memory/State
-                   ▼
-               AI Model(s)
-```
-
-## Safety Boundary
-
-Multiple entry points must never mean automatic permission inheritance.
-
-Core rule:
-
-`Identity continuity may be shared; authority is not automatically shared.`
-
-Adding a new account, device, or body requires authorization appropriate to the role and risk level.
-
-## Current Implementation Status
-
-- Shared XiaoAi identity architecture: ACTIVE
-- Authenticated identity binding model: ACTIVE
-- Role/scoped access model: ACTIVE
-- Session/persona state model: ACTIVE
-- Guardian multi-client state model: ACTIVE
-- Shared continuity model: ACTIVE
-- Durable-memory backend architecture: ACTIVE / controlled rollout
-- Every ChatGPT/front-end entry connected end-to-end: NOT YET
-- Full live daughter-chat runtime-unification cutover: intentionally NOT part of this document/update
+- Shared XiaoAi architecture: ACTIVE
+- Identity/access schema: DEPLOYED
+- Child-device enrollment auth path: CUT OVER
+- Real bound identities: NONE
+- Real client connections: NONE
+- Runtime-session substrate: DEPLOYED / SHADOW
+- Production persona persistence: NOT YET
+- Guardian multi-client live path: NOT YET
+- Memory V2 protected production path: DEPLOYED / ENABLED
+- Memory V2 real-user usage: NONE
+- Every ChatGPT/front-end entry connected E2E: NOT YET
+- Live conversational serving: NOT ACTIVE
 - Physical robot body: FUTURE
 
-This document defines the multi-entry architecture and current posture. It does not claim that every possible front end or body is already connected or production-ready.
+## Safety boundary
+
+Identity continuity may be shared; authority is never inherited automatically.
+
+Adding an account, device, client, or body requires authorization appropriate to the role and risk level.
