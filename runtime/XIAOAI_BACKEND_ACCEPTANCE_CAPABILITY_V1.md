@@ -1,88 +1,59 @@
 # XiaoAi Backend Acceptance Capability v1
 
-Status: REUSABLE BACKEND CAPABILITY
+Status: REFERENCE / DESIGN — NOT DEPLOYED
 
 ## Purpose
 
-Replace ad-hoc acceptance web pages and repeated OTP/email flows with a reusable backend acceptance capability.
+Define the intended backend acceptance model without claiming a capability exists in production when it has not been deployed.
 
-The operator trigger is conceptually:
-
-```text
-小爱后台验收
-```
-
-The backend should then inspect the current Identity-first state and return a structured acceptance snapshot.
-
-## Two-layer acceptance model
+## Intended two-layer model
 
 ### Layer A — routine backend regression
 
-Does **not** require user email, OTP, magic link, or a browser page.
+Target checks may include:
+- active companion-access count;
+- active client count;
+- runtime-session uniqueness;
+- persona-state readiness when such persistence exists;
+- auth binding counts;
+- overall identity-first readiness.
 
-Checks:
-- active companion access count;
-- active ChatGPT client count;
-- canonical `xiaoai-current` session uniqueness;
-- canonical persona state;
-- absence of open legacy `current_conversation` sessions;
-- Guardian auth binding count;
-- Child auth binding count;
-- overall `identity_first_ready` state.
+Earlier design text referenced:
 
-Source:
+`xiaoai_internal.backend_acceptance_snapshot()`
 
-```text
-xiaoai_internal.backend_acceptance_snapshot()
-```
+A live production database inspection on 2026-09-20 found no deployed backend-acceptance, acceptance-snapshot, identity-first acceptance, or native-entry acceptance function matching this design.
 
-This function is private to backend/service execution. `anon` and `authenticated` roles must not execute it directly.
+Therefore that function name is a target/reference, not a current capability.
 
 ### Layer B — real authenticated identity E2E
 
-Only run when a real identity path itself must be re-proven.
-
-Flow:
+Target flow:
 
 ```text
 real user session
-  -> Native Entry
+  -> trusted identity handoff
   -> Identity Resolver
   -> XiaoAi Runtime
   -> authoritative reply
 ```
 
-Do not request a new OTP/email merely to run routine regression. Reuse an existing valid authenticated session where supported. Request a new login email only when the real user session has expired or the identity binding itself is under test.
+This remains the decisive proof for live identity/session readiness.
 
-## Invariant
+## Current verified posture
 
-A backend acceptance snapshot is not a substitute for real identity E2E, but routine regression must not consume email quotas.
+- identity/session schema exists;
+- current live identity/session row counts are zero;
+- persona-state persistence is not productionized;
+- supported host-platform identity handoff is not connected end-to-end;
+- live conversational serving is not active.
 
-## Current snapshot fields
+## Acceptance rule
 
-The private capability currently reports:
-- `generated_at`
-- `active_companion_access_count`
-- `active_chatgpt_client_count`
-- `active_web_client_count`
-- `canonical_session_count`
-- `canonical_active_count`
-- `canonical_off_count`
-- `legacy_current_conversation_open_count`
-- `child_auth_bound_count`
-- `guardian_auth_bound_count`
-- `identity_first_ready`
+A design document, test that checks document wording, or database schema presence must not be presented as proof of deployed backend acceptance.
 
-## Current acceptance meaning
-
-`identity_first_ready = true` means the backend baseline is structurally ready for Identity-first operation.
-
-It does **not** mean the ChatGPT product has provided a native trusted platform identity handoff.
+Production acceptance requires live implementation evidence and read-back/telemetry from the actual runtime path.
 
 ## Deprecated workflow
 
-Do not recreate temporary HTML acceptance pages for ordinary backend regression.
-
-Do not send repeated OTP/magic-link emails for routine acceptance.
-
-Do not use service-role impersonation to claim real-user E2E success.
+Do not recreate temporary acceptance pages, repeated OTP flows, retired shadow transports, or service-role impersonation merely to make this design appear active.
