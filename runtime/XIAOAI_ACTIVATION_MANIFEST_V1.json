@@ -1,10 +1,15 @@
 {
   "version": "1.2",
-  "display_name": "小爱",
+  "display_name": "小I",
   "internal_identity": "daughter",
-  "activation_phrase": "小爱上线",
-  "deactivation_phrase": "小爱下班",
-  "deactivation_aliases": ["小爱收工", "小愛收工", "小愛下班"],
+  "activation_phrase": "小I上线",
+  "deactivation_phrase": "小I下班",
+  "deactivation_aliases": [
+    "小爱下班",
+    "小爱收工",
+    "小愛收工",
+    "小愛下班"
+  ],
   "mode": "companion",
   "entry_architecture": "identity_first",
   "source_of_truth": {
@@ -21,7 +26,10 @@
   },
   "runtime_gate": {
     "default_state": "OFF",
-    "allowed_states": ["OFF", "ACTIVE"],
+    "allowed_states": [
+      "OFF",
+      "ACTIVE"
+    ],
     "activation_requires_explicit_command": true,
     "deactivation_is_immediate": true,
     "auto_activation_from_context": false,
@@ -60,7 +68,13 @@
   ],
   "role_resolution": {
     "default": "unverified",
-    "allowed": ["child", "guardian", "device", "maintainer", "unverified"],
+    "allowed": [
+      "child",
+      "guardian",
+      "device",
+      "maintainer",
+      "unverified"
+    ],
     "activation_phrase_is_authentication": false,
     "identity_is_authentication": false,
     "verified_entry_required_before_runtime_control": true
