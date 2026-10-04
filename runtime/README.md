@@ -21,6 +21,13 @@ Therefore, older documentation describing `daughter-chat v4` as the active produ
 
 Do not infer that `xiaoi-memory-runtime` is the full conversational brain merely because it is active. Its exact production responsibilities must be established from live source or verified execution evidence.
 
+## Activation command recognition
+
+- **Canonical ChatGPT activation phrase:** `小I上线`
+- **Legacy compatibility phrase:** `小爱上线`
+- The command recognizer is implemented in `runtime/activation_command.py` and regression-tested in `tests/runtime/test_activation_command.py`.
+- Recognizing the phrase is **not** proof that the authoritative runtime session is active. A session may be declared `ACTIVE` only after the authoritative runtime confirms activation.
+
 ## Session / persona posture
 
 - `runtime_sessions` exists as the current session substrate.
