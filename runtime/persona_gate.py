@@ -10,7 +10,8 @@ class PersonaState(str, Enum):
     ACTIVE = "ACTIVE"
 
 
-ACTIVATION_PHRASE = "小爱上线"
+ACTIVATION_PHRASE = "小I上线"
+ACTIVATION_ALIASES = frozenset({"小爱上线"})
 DEACTIVATION_PHRASE = "小爱下班"
 DEACTIVATION_ALIASES = frozenset({"小爱收工", "小愛收工", "小愛下班"})
 
@@ -46,7 +47,7 @@ class XiaoAiPersonaGate:
                 transition=f"{state.value}->OFF",
             )
 
-        if command == ACTIVATION_PHRASE:
+        if command == ACTIVATION_PHRASE or command in ACTIVATION_ALIASES:
             return GateDecision(
                 state=PersonaState.ACTIVE,
                 should_load_xiaoai=True,
